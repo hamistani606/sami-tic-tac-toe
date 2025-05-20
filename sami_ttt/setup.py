@@ -1,4 +1,7 @@
+import os
 from setuptools import find_packages, setup
+from glob import glob
+
 
 package_name = 'sami_ttt'
 
@@ -10,16 +13,22 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.py'))),
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.xml'))),
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.yaml'))),
+        (os.path.join('share', package_name, 'assets'), glob('assets/**/*', recursive=True)),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='user',
-    maintainer_email='',
+    maintainer='Kyle Vickstrom',
+    maintainer_email='vickskyl@oregonstate.edu',
     description='ROB421 Project: SAMI Tic Tac Toe',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'ttt_console = sami_ttt.ttt_game_console:createConsole',
         ],
     },
 )

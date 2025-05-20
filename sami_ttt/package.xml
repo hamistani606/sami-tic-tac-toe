@@ -4,14 +4,15 @@
   <name>sami_ttt</name>
   <version>0.0.1</version>
   <description>ROB421 Project: SAMI Tic Tac Toe</description>
-  <maintainer email"">user</maintainer>
+  <maintainer email="vickskyl@oregonstate.edu">KyleVickstrom</maintainer>
   <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
-
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>rclpy</exec_depend>
   <export>
     <build_type>ament_python</build_type>
   </export>
