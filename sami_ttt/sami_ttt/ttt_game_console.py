@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# triviaGame.py
+# ttt_game_console.py
 #
 # Kyle Vickstrom
 #
@@ -16,7 +16,7 @@ from rclpy.action import ActionClient
 from rclpy.time import Time
 import curses
 
-from sami_ttt_msgs.msg import GameLog
+from sami_ttt_msgs.msg import GameLog, GameState
 #from sami_trivia_msgs.srv import NewQuestion, SerialConnect, CheckAnswer
 #from sami_trivia_msgs.action import MoveSami, Speak, Listen
 
