@@ -23,7 +23,7 @@ from ament_index_python.packages import get_package_share_directory
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
-from sami_trivia_msgs.msg import Question, GameLog
+from sami_trivia_msgs.msg import GameLog
 from sami_trivia_msgs.action import Speak, Listen
 
 MIC_INDEX   = 0
