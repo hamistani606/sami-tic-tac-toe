@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# ttt_Game.py
+# ttt_game.py
 #
 # Kyle Vickstrom
 #
@@ -27,13 +27,13 @@ class TicTacGame(Node):
         self.pubGame = self.create_publisher(GameState, 'game_state', 10)
         self.newGame_srv = self.create_service(NewGame, 'new_game', self.newGame)
         self.playerTurn_srv = self.create_service(PlayerTurn, 'player_turn', self.playerTurn)
-        # TODO: service calls: newGame (reset), player turn
         # TODO: how to check for win?
         # TODO: how to implement computer's turn
 
     def newGame(self, request, response):
         """
         This clears the game state and resets.
+        Service Server.
         """
         newGame = GameState()
         # randomly choose who goes first
@@ -86,7 +86,7 @@ class TicTacGame(Node):
             response.valid = False
             return response
 
-        self.GameState.board[request.location] = self.GameState.num_turns
+        self.GameState.board[request.location] = self.GameState.turn
         self.GameState.num_turns += 1
         self.log(f"Placed on {request.location}.")
         # TODO: Check for win condition here?

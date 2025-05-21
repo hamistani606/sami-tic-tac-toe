@@ -30,6 +30,7 @@ setup(
         'console_scripts': [
             'ttt_console = sami_ttt.ttt_game_console:createConsole',
             'ttt_game = sami_ttt.ttt_game:createGame',
+            'misty_control = sami_ttt.misty_control:createMisty'
         ],
     },
 )

@@ -17,8 +17,7 @@ from sami_ttt_msgs.msg import GameLog, GameState
 from sami_ttt_msgs.srv import MistyConnect
 
 
-# TODO: Add dependecy to README
-# TODO: Add connection service
+# TODO: Finish connection service
 # TODO: Add animation / moving action server (call one animation)
 # TODO: Add animation / movement bank based on emote type
 
@@ -26,6 +25,7 @@ class MistyControl(Node):
     def __init__(self):
         super().__init__('misty_control')
         self.misty = None
+        self.connected = False
         self.connect_srv = self.create_service(MistyConnect, 'misty_connect', self.connectMisty)
 
 
@@ -33,8 +33,12 @@ class MistyControl(Node):
         """
         Service Server to connect to misty robot
         """
-        self.misty = Robot(request.ip)
-        self.log("connected to misty?")
+        if not self.connected:
+            self.misty = Robot(request.ip)
+            self.log("connected to misty?")
+            self.connected = True
+        else: 
+            self.log("already connected to Misty!")
         return response
 
     def log(self, msg):
