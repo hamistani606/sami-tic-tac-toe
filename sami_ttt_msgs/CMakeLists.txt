@@ -29,6 +29,7 @@ find_package(builtin_interfaces REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GameLog.msg"
   "msg/GameState.msg"
+  "srv/NewGame.srv"
   DEPENDENCIES builtin_interfaces
 )
 ament_package()

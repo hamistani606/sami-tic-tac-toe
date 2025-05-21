@@ -16,6 +16,7 @@ from rclpy.time import Time
 import random
 
 from sami_ttt_msgs.msg import GameLog, GameState
+from sami_ttt_msgs.srv import NewGame
 
 class TicTacGame(Node):
     def __init__(self):
@@ -24,22 +25,24 @@ class TicTacGame(Node):
         self.GameState = None
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.pubGame = self.create_publisher(GameState, 'game_state', 10)
-        self.newGame()
+        self.newGame_srv = self.create_service(NewGame, 'new_game', self.newGame)
+        # TODO: service calls: newGame (reset), player turn
+        # TODO: how to check for win?
+        # TODO: how to implement computer's turn
 
-    def newGame(self):
+    def newGame(self, request, response):
         """
         This clears the game state and resets.
+        TODO: this should be a service call
         """
         newGame = GameState()
         # randomly choose who goes first
         newGame.turn = random.randint(0, 1)
+        response.turn = newGame.turn
         newGame.num_turns = 0
-        if self.GameState == None:
-            # program just started
-            newGame.score = [0, 0]
-        else:
-            # this assumes the latest win has already been counted
-            newGame.score = self.GameState.score
+        
+        # set score
+        newGame.score = request.score
 
         # empty board
         newGame.board = [-1, -1, -1,
@@ -54,6 +57,8 @@ class TicTacGame(Node):
             self.log("New game created. My turn to go first!")
         else:
             self.log("New game created. Your turn to go first!")
+
+        return response
 
 
 
@@ -73,6 +78,7 @@ class TicTacGame(Node):
 def createGame(args=None):
     rclpy.init(args=args)
     game = TicTacGame()
+    rclpy.spin(game)
     rclpy.shutdown()
 
 if __name__ == "__main__":

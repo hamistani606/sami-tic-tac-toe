@@ -17,6 +17,7 @@ from rclpy.time import Time
 import curses
 
 from sami_ttt_msgs.msg import GameLog, GameState
+from sami_ttt_msgs.srv import NewGame
 #from sami_trivia_msgs.srv import NewQuestion, SerialConnect, CheckAnswer
 #from sami_trivia_msgs.action import MoveSami, Speak, Listen
 
@@ -28,6 +29,7 @@ class TicTacConsole(Node):
         self.gameLog = []
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.subLog = self.create_subscription(GameLog, 'game_log', self.logsubscriber, 10)
+        self.newGame_client = self.create_client(NewGame, 'new_game')
 
         # self.moveClient = ActionClient(self, MoveSami, 'move_sami')
         # self.arduinoClient = self.create_client(SerialConnect, 'serial_connect')
@@ -66,6 +68,7 @@ class TicTacConsole(Node):
                     if not self.started:
                         self.started = True
                         self.log("Starting game...")
+                        self.newGame_request((0, 0))
                     #self.get_logger().info("Starting game...")
                 
                 elif key == 10: # enter key
@@ -248,6 +251,19 @@ class TicTacConsole(Node):
             self.log("[USER INPUT] theres not anything implemented here yet")
             return
         return
+
+    def newGame_request(self, score: tuple[int, int]):
+        """
+        Service request to game node to create a new game. Send (0, 0) for first start otherwise score = (cpu,player) scores
+        """
+        if not self.newGame_client.wait_for_service(timeout_sec=1):
+            self.log("Game node not active.")
+            return
+        newScore = [score[0], score[1]]
+        request = NewGame.Request()
+        request.score = newScore
+        self.response = self.newGame_client.call_async(request)
+        self.log("Requested new game")
 
     def log(self, msg):
         """
