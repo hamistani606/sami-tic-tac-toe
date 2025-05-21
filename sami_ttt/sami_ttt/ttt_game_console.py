@@ -27,6 +27,7 @@ class TicTacConsole(Node):
         self.started = False
         self.inputMode = False
         self.gameLog = []
+        self.score = None
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.subLog = self.create_subscription(GameLog, 'game_log', self.logsubscriber, 10)
         self.subGame = self.create_subscription(GameState, 'game_state', self.readGameState, 10)
@@ -236,6 +237,20 @@ class TicTacConsole(Node):
                 self.log("player_id and location must be int")
                 return
             self.newTurn_request(player_id, loc)
+
+        elif cmd == "newgame":
+            if len(args) != 2:
+                self.log("USAGE: newgame <samiscore> <myscore>")
+                return
+            try:
+                samiscore = int(args[0])
+                myscore = int(args[1])
+            except ValueError:
+                self.log("scores must be int")
+                return
+            self.newGame_request((samiscore, myscore))
+
+
         else:
             self.log("[USER INPUT] theres not anything implemented here yet")
             return
@@ -294,6 +309,7 @@ class TicTacConsole(Node):
         """
         Subscriber callback to the GameState topic
         """
+        self.score = msg.score
         for i in range(0, 9, 3):
             row = msg.board[i:i+3]
             self.log(str(row))

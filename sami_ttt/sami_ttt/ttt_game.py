@@ -49,6 +49,7 @@ class TicTacGame(Node):
                         -1, -1, -1,
                         -1, -1, -1]
 
+        self.log(f"Score is {newGame.score[0]} robot, {newGame.score[1]} you.")
         if newGame.turn == 0:
             self.log("New game created. My turn to go first!")
         else:
