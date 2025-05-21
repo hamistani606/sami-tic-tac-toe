@@ -1,0 +1,4 @@
+# misty robot ip
+string ip
+---
+bool connected
