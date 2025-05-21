@@ -23,8 +23,8 @@ from ament_index_python.packages import get_package_share_directory
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
-from sami_trivia_msgs.msg import GameLog
-from sami_trivia_msgs.action import Speak, Listen
+from sami_tts_msgs.msg import GameLog
+from sami_tts_msgs.action import Speak, Listen
 
 MIC_INDEX   = 0
 SAMPLE_RATE = 48000
@@ -53,7 +53,7 @@ class gameVoice(Node):
 
 
             self.tts_client_group = ReentrantCallbackGroup()
-            self.tts_server_group = MutuallyExclusiveCallbackGroup()
+            self.tts_server_group = ReentrantCallbackGroup()
             self.speak_srv_group  = ReentrantCallbackGroup()
             self.talkClient = ActionClient(
                 self, Speak, "speak", callback_group=self.tts_client_group
@@ -237,8 +237,8 @@ class gameVoice(Node):
 def main(args=None):
     rclpy.init(args=args)
     voice = gameVoice()
-    executor = MultiThreadedExecutor()      # <-- add this
-    executor.add_node(voice)               # register the node
+    executor = MultiThreadedExecutor()
+    executor.add_node(voice)
     executor.spin()    
     rclpy.shutdown()
     
