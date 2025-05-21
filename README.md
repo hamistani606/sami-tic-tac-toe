@@ -12,6 +12,7 @@ This starts all the nodes except the board GUI and console UI.
 NOT IMPLEMENTED YET  
   
 ### Board GUI:
+This is John's GUI using the LCD screen. Displays the board and relays the user's input with the service call to `ttt_game`.
   
 ### UI Controller:
 `ros2 run sami_ttt ttt_console`  
@@ -26,3 +27,7 @@ I like to create a class method `log(self, msg:str)` where this string is publis
 ## Game Tools Nodes:  
     - `ttt_game`: This is the game manager. Publishes the GameState and receives player input via service calls.  
                     Calls for sounds, robot animations via action calls when appropriate.  
+    - `cpu`: Not Implemented Yet. This node calls the player turn service on the `ttt_game` node and the relevent action calls for audio and robot motion.
+                    The 'next move' algorithm can be written here or in an adjacent node that this node calls.  
+    - `move_misty`: Not Implemented Yet. This is the `move_robot` node. Should be able to be swapped with a `move_sami` equivalent.  
+    - `audio`: Not Implemented Yet. This node receives a string via action call and uses a TTS package to play the string on speakers.  
