@@ -29,6 +29,7 @@ class TicTacConsole(Node):
         self.gameLog = []
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.subLog = self.create_subscription(GameLog, 'game_log', self.logsubscriber, 10)
+        self.subGame = self.create_subscription(GameState, 'game_state', self.readGameState, 10)
         self.newGame_client = self.create_client(NewGame, 'new_game')
 
         # self.moveClient = ActionClient(self, MoveSami, 'move_sami')
@@ -282,6 +283,12 @@ class TicTacConsole(Node):
         if len(self.gameLog) >=50:
             self.gameLog.pop(0)
         self.gameLog.append(msg)
+
+    def readGameState(self, msg: GameState):
+        """
+        Subscriber callback to the GameState topic
+        """
+        self.log(str(msg.board))
 
 def createConsole(args=None):
     rclpy.init(args=args)
