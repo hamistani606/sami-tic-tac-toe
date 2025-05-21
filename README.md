@@ -5,6 +5,7 @@
 ### Dependencies:
 put your dependecies here and any weird install steps  
     - curses (no install needed on linux)  
+    - Misty-SDK  
   
 ### Game Tools:
 `ros2 launch sami_ttt gameTools.py`  
@@ -25,9 +26,9 @@ This will show the timestamp, node of origin, and log message in the console win
 I like to create a class method `log(self, msg:str)` where this string is published to `self.get_logger().info(msg)` and topic `game_log`.  
 
 ## Game Tools Nodes:  
-    - `ttt_game`: This is the game manager. Publishes the GameState and receives player input via service calls.  
+* `ttt_game`: This is the game manager. Publishes the GameState and receives player input via service calls.  
                     Calls for sounds, robot animations via action calls when appropriate.  
-    - `cpu`: Not Implemented Yet. This node calls the player turn service on the `ttt_game` node and the relevent action calls for audio and robot motion.
+* `cpu`: Not Implemented Yet. This node calls the player turn service on the `ttt_game` node and the relevent action calls for audio and robot motion.
                     The 'next move' algorithm can be written here or in an adjacent node that this node calls.  
-    - `move_misty`: Not Implemented Yet. This is the `move_robot` node. Should be able to be swapped with a `move_sami` equivalent.  
-    - `audio`: Not Implemented Yet. This node receives a string via action call and uses a TTS package to play the string on speakers.  
+* `misty_control`: This is the `move_robot` node. Should be able to be swapped with a `move_sami` equivalent.  
+* `audio`: Not Implemented Yet. This node receives a string via action call and uses a TTS package to play the string on speakers.  
