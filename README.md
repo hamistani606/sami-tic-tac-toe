@@ -1,4 +1,6 @@
 # ROB 421 Tic Tac Toe Game
+   
+<img src="sami_ttt/assets/nodes_sketch.jpg"  width="50%"/>  
   
 ### Dependencies:
 put your dependecies here and any weird install steps  
