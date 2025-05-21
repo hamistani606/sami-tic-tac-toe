@@ -17,7 +17,7 @@ from rclpy.time import Time
 import curses
 
 from sami_ttt_msgs.msg import GameLog, GameState
-from sami_ttt_msgs.srv import NewGame
+from sami_ttt_msgs.srv import NewGame, PlayerTurn
 #from sami_trivia_msgs.srv import NewQuestion, SerialConnect, CheckAnswer
 #from sami_trivia_msgs.action import MoveSami, Speak, Listen
 
@@ -31,6 +31,7 @@ class TicTacConsole(Node):
         self.subLog = self.create_subscription(GameLog, 'game_log', self.logsubscriber, 10)
         self.subGame = self.create_subscription(GameState, 'game_state', self.readGameState, 10)
         self.newGame_client = self.create_client(NewGame, 'new_game')
+        self.newTurn_client = self.create_client(PlayerTurn, 'player_turn')
 
         # self.moveClient = ActionClient(self, MoveSami, 'move_sami')
         # self.arduinoClient = self.create_client(SerialConnect, 'serial_connect')
@@ -220,34 +221,21 @@ class TicTacConsole(Node):
 
         if cmd == "move":
             self.log("no more sami to move, TODO: implement misty moving?")
-            '''
-            if len(args) != 1:
-                self.log("[USER INPUT] Usage: move <filename.json>")
-                return
-            filename = args[0]
-            self.moveSami(filename)
-            return
-            '''
+            
         elif cmd == "connect":
             self.log('connect no work rn')
-            '''
-            if len(args) == 0:
-                self.log(f"No args specified. Connecting to default port: {self.arduinoPort} and baudrate: {self.arduinoBaudrate}")
-            elif len(args) == 1:
-                self.arduinoPort = args[0]
-                self.log(f"Changed port to {args[0]}")
-            elif len(args) == 2:
-                try:
-                    self.arduinoPort = str(args[0])
-                    self.log(f"Changed port to {args[0]}")
-                    self.arduinoBaudrate = int(args[1])
-                    self.log(f"Changed baudrate to {args[1]}")
-                    self.connectSAMI()
-                except TypeError as e:
-                    self.log(f"ERROR: {e}")
-                except ValueError as e:
-                    self.log(f"ERROR {e}")
-            '''
+
+        elif cmd == "turn":
+            if len(args) != 2:
+                self.log("USAGE: turn <player_id> <location>")
+                return
+            try:
+                player_id = int(args[0])
+                loc = int(args[1])
+            except ValueError:
+                self.log("player_id and location must be int")
+                return
+            self.newTurn_request(player_id, loc)
         else:
             self.log("[USER INPUT] theres not anything implemented here yet")
             return
@@ -263,8 +251,26 @@ class TicTacConsole(Node):
         newScore = [score[0], score[1]]
         request = NewGame.Request()
         request.score = newScore
-        self.response = self.newGame_client.call_async(request)
+        self.NewGame_response = self.newGame_client.call_async(request)
         self.log("Requested new game")
+
+    def newTurn_request(self, player_id:int, location: int):
+        """
+        Service request to make a turn
+        id 0 = cpu, 1 = human
+        """
+        if not self.newTurn_client.wait_for_service(timeout_sec=1):
+            self.log("Game node not active")
+            return
+
+        newTurn = PlayerTurn.Request()
+        newTurn.player_id = player_id
+        newTurn.location = location
+        self.newTurn_response = self.newTurn_client.call_async(newTurn)
+        self.log(f"Requested turn for id {player_id}, location {location}")
+
+
+
 
     def log(self, msg):
         """
@@ -288,7 +294,9 @@ class TicTacConsole(Node):
         """
         Subscriber callback to the GameState topic
         """
-        self.log(str(msg.board))
+        for i in range(0, 9, 3):
+            row = msg.board[i:i+3]
+            self.log(str(row))
 
 def createConsole(args=None):
     rclpy.init(args=args)

@@ -73,7 +73,7 @@ class TicTacGame(Node):
             response.valid = False
             return response
 
-        if request.location > 9:
+        if request.location >= 9:
             self.log("Invalid location!")
             response.valid = False
             return response
@@ -82,10 +82,10 @@ class TicTacGame(Node):
         if self.GameState.board[request.location] != -1:
             # space is not blank
             self.log("Space already occupied!")
-            request.valid = False
+            response.valid = False
             return response
 
-        self.GameState.board[request.location] = self.GameState.num_turn
+        self.GameState.board[request.location] = self.GameState.num_turns
         self.GameState.num_turns += 1
         self.log(f"Placed on {request.location}.")
         # TODO: Check for win condition here?
@@ -103,7 +103,7 @@ class TicTacGame(Node):
         # publish updated game state
         self.pubGame.publish(self.GameState)
 
-        request.valid = True
+        response.valid = True
 
         return response
 
