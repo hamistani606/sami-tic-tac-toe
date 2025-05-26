@@ -8,17 +8,23 @@
 
 import rclpy
 from rclpy.node import Node
-from rclpy.action import ActionClient
+from rclpy.action import ActionClient, ActionServer, CancelResponse
 from rclpy.time import Time
 
 from mistyPy.Robot import Robot
 
 from sami_ttt_msgs.msg import GameLog, GameState
 from sami_ttt_msgs.srv import MistyConnect
+from sami_ttt_msgs.action import MistyMovement
+
+# These are needed if we're going to enable action cancelation.
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
+
 
 
 # TODO: Finish connection service
-# TODO: Add animation / moving action server (call one animation)
+# TODO: confirm animation / moving action server (call one animation) works
 # TODO: Add animation / movement bank based on emote type
 
 class MistyControl(Node):
@@ -27,7 +33,59 @@ class MistyControl(Node):
         self.misty = None
         self.connected = False
         self.connect_srv = self.create_service(MistyConnect, 'misty_connect', self.connectMisty)
+        
+        #action server for running misty movement behaviors
+        self.server = ActionServer(self, MistyMovement, 'mistymovement', self.behavior_callback, 
+            callback_group=ReentrantCallbackGroup(), cancel_callback=self.cancel_callback)
 
+        # This is the callback the services the action request.
+    def behavior_callback(self, goal):
+
+        # Grab the logger and send a message to it.
+        self.get_logger().info(f'Got {goal.request.behavior}')
+
+        # Build a result to send the sequence to.  We can do this through the base
+        # action type.  Once we build it, we set the return data, in sequence, to an
+        # empty list.
+        result = MistyMovement.Result()
+        result.status = 'in_progress'
+
+        filename = 'behaviorbank/' + str(goal.request.behavior) + '.py'
+        lines = []
+        with open(filename,'r') as behaviorscript:
+            lines = behaviorscript.readlines()
+
+
+
+        while lines:
+            # Check to see if we have a cancellation request.  If we do, set the goal
+            # status to canceled and return an empty result.
+            
+            if goal.is_cancel_requested:
+                goal.canceled()
+                self.get_logger().info('And, the goal is canceled.')
+                result.status = 'canceled'
+                return MistyMovement.Result()
+
+            # Because of the way the exec() works here, loops in the files do not work, theyll break code
+            exec(lines.pop(0))
+            
+            result.status = 'running'
+            goal.publish_feedback(MistyMovement.Feedback(progress=result.status))
+
+
+        # Let the action server know that we've succeeded in the action.  It it doesn't
+        # succeed, you can set other values here.
+        goal.succeed()
+        self.get_logger().info(f'Result: {result.completion}')
+
+        # Return the result to the action server.
+        return result
+
+    # This callback fires when a cancellation request comes in.
+    def cancel_callback(self, goal_handle):
+        self.get_logger().info('Canceling goal')
+        return CancelResponse.ACCEPT
 
     def connectMisty(self, request, response):
         """
@@ -56,7 +114,7 @@ class MistyControl(Node):
 def createMisty(args=None):
     rclpy.init(args=args)
     mistyrobot = MistyControl()
-    rclpy.spin(mistyrobot)
+    rclpy.spin(mistyrobot, MultiThreadedExecutor())
     rclpy.shutdown()
 
 if __name__ == "__main__":
