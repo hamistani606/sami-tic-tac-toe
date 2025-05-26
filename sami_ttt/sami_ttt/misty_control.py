@@ -50,7 +50,7 @@ class MistyControl(Node):
         result = MistyMovement.Result()
         result.status = 'in_progress'
 
-        filename = 'behaviorbank/' + str(goal.request.behavior) + '.py'
+        filename = '../behaviorbank/' + str(goal.request.behavior) + '.py'
         lines = []
         with open(filename,'r') as behaviorscript:
             lines = behaviorscript.readlines()
