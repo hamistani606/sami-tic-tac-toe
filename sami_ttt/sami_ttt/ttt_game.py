@@ -27,7 +27,7 @@ class TicTacGame(Node):
         self.pubGame = self.create_publisher(GameState, 'game_state', 10)
         self.newGame_srv = self.create_service(NewGame, 'new_game', self.newGame)
         self.playerTurn_srv = self.create_service(PlayerTurn, 'player_turn', self.playerTurn)
-        # TODO: how to check for win?
+        self.newGame_client = self.create_client(NewGame, 'new_game')
         # TODO: how to implement computer's turn
 
     def newGame(self, request, response):
@@ -66,6 +66,17 @@ class TicTacGame(Node):
 
         return response
 
+    def newGame_request(self):
+        """
+        Service request to game node to create a new game.
+        """
+        if not self.newGame_client.wait_for_service(timeout_sec=1):
+            self.log("Game node not active.")
+            return
+        request = NewGame.Request()
+        self.NewGame_response = self.newGame_client.call_async(request)
+        self.log("Requested new game")
+
 
     def playerTurn(self, request, response):
         """
@@ -102,6 +113,8 @@ class TicTacGame(Node):
 
         if self.GameState.win != 99:
             # TODO: someone has won so SAMI text / interaction here
+            # request new game upon win or have user indicate they want another game?
+            #self.newGame_request()
             pass
         else:
             # advance turn
@@ -129,8 +142,63 @@ class TicTacGame(Node):
         """
         Checks if there a player has won and modifies the score accordingly
         """
-        pass
+        # get rows
+        rows = [self.GameState.board[i:i+3] for i in range(0, 9, 3)]
+        # get cols
+        cols = [[self.GameState.board[i], self.GameState.board[i+3],self.GameState.board[i+6]] for i in range(3)]
+        # get diags
+        diags = [[self.GameState.board[0],self.GameState.board[4],self.GameState.board[8]],
+                [self.GameState.board[2],self.GameState.board[4], self.GameState.board[6]]]
 
+        # check for win by just totalling each of these lists^
+        # total will be 0 if sami wins, 3 if player wins, if any are -1 then break
+
+        # check rows
+        total = totalForWinCheck(rows)
+        
+        # assign win
+        if total == 0 or total == 3:
+            self.log(f"User {self.GameState.turn} wins!")
+            self.GameState.score[self.GameState.turn] += 1
+            self.GameState.win = self.GameState.turn
+            return
+
+        # check cols
+        total = totalForWinCheck(rows)
+
+        # assign win
+        if total == 0 or total == 3:
+            self.log(f"User {self.GameState.turn} wins!")
+            self.GameState.score[self.GameState.turn] += 1
+            self.GameState.win = self.GameState.turn
+            return
+
+        # check diags
+        total = totalForWinCheck(rows)
+
+        # assign win
+        if total == 0 or total == 3:
+            self.log(f"User {self.GameState.turn} wins!")
+            self.GameState.score[self.GameState.turn] += 1
+            self.GameState.win = self.GameState.turn
+            return
+
+    def totalForWinCheck(self, combos)
+        """
+        loops over combos to find the total
+        """
+        total = 0
+        for combo in combos:
+            for mv in combo:
+                if mv == -1:
+                    total = -1
+                    break
+                else:
+                    total += mv
+        return total
+
+
+        
 
 
     def log(self, msg):

@@ -239,16 +239,7 @@ class TicTacConsole(Node):
             self.newTurn_request(player_id, loc)
 
         elif cmd == "newgame":
-            if len(args) != 2:
-                self.log("USAGE: newgame <samiscore> <myscore>")
-                return
-            try:
-                samiscore = int(args[0])
-                myscore = int(args[1])
-            except ValueError:
-                self.log("scores must be int")
-                return
-            self.newGame_request((samiscore, myscore))
+            self.newGame_request()
 
 
         else:
@@ -256,16 +247,14 @@ class TicTacConsole(Node):
             return
         return
 
-    def newGame_request(self, score: tuple[int, int]):
+    def newGame_request(self):
         """
-        Service request to game node to create a new game. Send (0, 0) for first start otherwise score = (cpu,player) scores
+        Service request to game node to create a new game.
         """
         if not self.newGame_client.wait_for_service(timeout_sec=1):
             self.log("Game node not active.")
             return
-        newScore = [score[0], score[1]]
         request = NewGame.Request()
-        request.score = newScore
         self.NewGame_response = self.newGame_client.call_async(request)
         self.log("Requested new game")
 
