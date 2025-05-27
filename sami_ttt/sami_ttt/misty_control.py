@@ -21,7 +21,7 @@ from sami_ttt_msgs.action import MistyMovement
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
-
+import time
 
 # TODO: Finish connection service
 # TODO: confirm animation / moving action server (call one animation) works
@@ -49,8 +49,7 @@ class MistyControl(Node):
         # empty list.
         result = MistyMovement.Result()
         result.status = 'in_progress'
-
-        filename = '../behaviorbank/' + str(goal.request.behavior) + '.py'
+        filename = 'install/sami_ttt/share/sami_ttt/behaviorbank/' + str(goal.request.behavior) + '.py'
         lines = []
         with open(filename,'r') as behaviorscript:
             lines = behaviorscript.readlines()
@@ -116,6 +115,34 @@ def createMisty(args=None):
     mistyrobot = MistyControl()
     rclpy.spin(mistyrobot, MultiThreadedExecutor())
     rclpy.shutdown()
+
+#dummy display version of the command sending functionality in case Misty breaks 
+def dummymovetest1():    
+    goalis_cancel_requested = False
+    goalrequestbehavior = 'dummytest1'
+    # Grab the logger and send a message to it.
+    print(f'Got {goalrequestbehavior}')
+    # Build a result to send the sequence to.  We can do this through the base
+    # action type.  Once we build it, we set the return data, in sequence, to an
+    # empty list.
+    filename = 'install/sami_ttt/share/sami_ttt/behaviorbank/'+str(goalrequestbehavior) + '.py'
+    lines = []
+    with open(filename,'r') as behaviorscript:
+        lines = behaviorscript.readlines()
+    while lines:
+        # Check to see if we have a cancellation request.  If we do, set the goal
+        # status to canceled and return an empty result.
+        if goalis_cancel_requested:
+            goalis_cancel_requested()
+            print('And, the goal is canceled.')
+            resultstatus = 'canceled'
+        # Because of the way the exec() works here, loops in the files do not work, theyll break code
+        exec(lines.pop(0))
+        resultstatus = 'running'
+        print(resultstatus)
+    print('successful run')
+
+
 
 if __name__ == "__main__":
     createMisty()
