@@ -56,9 +56,15 @@ class TicTacToeBoard(tk.Tk, Node):
                     print(f"stored: {self.buttons_pressed}")
                     self.button_identities[idx].config(text='O')
 
-
-        
-
+        if self.Game_Info.turn == None:
+            return
+        # Draw couter
+        sami_wins = self.Game_Info.score[0]
+        player_wins = self.Game_Info.score[1]
+        win_counter = tk.Frame(master=self.tk)
+        win_counter = tk.Label(self.tk, text=f"Sami Wins: {sami_wins}, Player Wins: {player_wins}")
+        win_counter.pack()
+    
     # Creates master frame (window) that all other items are added to
     def _create_board_GUI(self):
         display_frame = tk.Frame(master=self.tk)
@@ -109,7 +115,6 @@ class TicTacToeBoard(tk.Tk, Node):
                 # List containing button IDs
                 self.button_identities.append(button)
 
-
     # Button to reset game
     def _create_board_restart(self):
         # Adding button to master frame
@@ -121,17 +126,6 @@ class TicTacToeBoard(tk.Tk, Node):
         # Places button in center of frame
         restart_button.pack(padx=20,pady=20)
         
-    #def display_wins():
-    #    if self.Game_Info == None:
-    #        return
-    #    # Draw couter
-    #    sami_wins = self.Game_Info.score[0]
-    #    player_wins = self.Game_Info.score[1]
-    #    win_counter = tk.Frame(master=self.tk)
-    #    win_counter = tk.text(f"Sami Wins: {sami_wins},
-    #        Player Wins: {player_wins}")
-    #    win_counter.pack(tk.side=LEFT)
-
     # Running startup of all tasks within class
     def run(self):
         while rclpy.ok:
@@ -173,7 +167,6 @@ def record(button,buttons_pressed,button_identities, self):
     # Make request on server for Kyle code to change .msg file
     self.newTurn_client.call_async(newTurn)
     self.log(f"Player turn on {location}")
-
 
 # Starting process
 if __name__ == '__main__':
