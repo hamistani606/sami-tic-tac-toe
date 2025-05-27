@@ -71,7 +71,7 @@ class TicTacConsole(Node):
                     if not self.started:
                         self.started = True
                         self.log("Starting game...")
-                        self.newGame_request((0, 0))
+                        self.newGame_request()
                     #self.get_logger().info("Starting game...")
                 
                 elif key == 10: # enter key

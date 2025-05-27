@@ -143,9 +143,13 @@ class TicTacGame(Node):
         Checks if there a player has won and modifies the score accordingly
         """
         # get rows
-        rows = [self.GameState.board[i:i+3] for i in range(0, 9, 3)]
+        rows = [[self.GameState.board[0], self.GameState.board[1],self.GameState.board[2]],
+                [self.GameState.board[3], self.GameState.board[4],self.GameState.board[5]],
+                [self.GameState.board[6], self.GameState.board[7],self.GameState.board[8]]]
         # get cols
-        cols = [[self.GameState.board[i], self.GameState.board[i+3],self.GameState.board[i+6]] for i in range(3)]
+        cols = [[self.GameState.board[0], self.GameState.board[3],self.GameState.board[6]],
+                [self.GameState.board[1], self.GameState.board[4],self.GameState.board[7]],
+                [self.GameState.board[2], self.GameState.board[5],self.GameState.board[8]]]
         # get diags
         diags = [[self.GameState.board[0],self.GameState.board[4],self.GameState.board[8]],
                 [self.GameState.board[2],self.GameState.board[4], self.GameState.board[6]]]
@@ -154,36 +158,42 @@ class TicTacGame(Node):
         # total will be 0 if sami wins, 3 if player wins, if any are -1 then break
 
         # check rows
-        total = totalForWinCheck(rows)
-        
+        #self.log(f"rows: {rows}")
+        #self.log(f"cols: {cols}")
+        #self.log(f"diags: {diags}")
+        total = self.totalForWinCheck(rows)
+        turn = int(self.GameState.turn)
+        #self.log(total)
         # assign win
         if total == 0 or total == 3:
-            self.log(f"User {self.GameState.turn} wins!")
+            #self.log(f"User {turn} wins!")
             self.GameState.score[self.GameState.turn] += 1
             self.GameState.win = self.GameState.turn
             return
 
         # check cols
-        total = totalForWinCheck(rows)
+        total = self.totalForWinCheck(rows)
 
         # assign win
         if total == 0 or total == 3:
-            self.log(f"User {self.GameState.turn} wins!")
+            #self.log(f"User {turn} wins!")
             self.GameState.score[self.GameState.turn] += 1
             self.GameState.win = self.GameState.turn
             return
 
         # check diags
-        total = totalForWinCheck(rows)
+        total = self.totalForWinCheck(rows)
 
         # assign win
         if total == 0 or total == 3:
-            self.log(f"User {self.GameState.turn} wins!")
+            s#elf.log(f"User {turn} wins!")
             self.GameState.score[self.GameState.turn] += 1
             self.GameState.win = self.GameState.turn
             return
 
-    def totalForWinCheck(self, combos)
+        self.log("No win yet")
+
+    def totalForWinCheck(self, combos):
         """
         loops over combos to find the total
         """
@@ -195,6 +205,9 @@ class TicTacGame(Node):
                     break
                 else:
                     total += mv
+            if total != -1:
+                break
+        self.log(f'{total}')
         return total
 
 
