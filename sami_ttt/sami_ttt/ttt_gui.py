@@ -32,6 +32,8 @@ class TicTacToeBoard(tk.Tk, Node):
         self._create_board_GUI()
         self.create_grid()
         self._create_board_restart()
+        self.newGame_client = self.create_client(NewGame, 'new_game')
+        self.newTurn_client = self.create_client(PlayerTurn, 'player_turn')
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.subGame = self.create_subscription(GameState, 'game_state', self.update_game, 10)
         self.Game_Info = None
@@ -43,7 +45,9 @@ class TicTacToeBoard(tk.Tk, Node):
         """
         # Adds new game info to instance variable
         self.Game_Info = Gameinfo
-
+        self.Game_Info.turn
+        self.draw_symbol()
+        self.display_wins()
 
     # Creates master frame (window) that all other items are added to
     def _create_board_GUI(self):
@@ -68,9 +72,11 @@ class TicTacToeBoard(tk.Tk, Node):
             self.rowconfigure(row, weight=1, minsize=100)
             self.columnconfigure(row, weight=1, minsize=100)
             # Stores button ID for later use
-            button_identities = []
+            self.button_identities = []
+            self.buttons_pressed = []
             # Iterating through loop and creating all buttons
             for col in range(3):
+                num = row * 3 + col
                 button = tk.Button(
                     master=grid_frame,
                     text='',
@@ -79,8 +85,7 @@ class TicTacToeBoard(tk.Tk, Node):
                     width=3,
                     height=1,
                     highlightbackground='lightblue',
-                    # Command which buttons run when pressed
-                    command=add_symbol,
+                    command=lambda n=num: record(n, self.buttons_pressed)
                 )
                 # Placing buttons on actual grid
                 self._cells[button] = (row, col)
@@ -92,7 +97,7 @@ class TicTacToeBoard(tk.Tk, Node):
                     sticky='nsew'
                 )
                 # List containing button IDs
-                button_identities.append(button)
+                self.button_identities.append(button)
             #print(button_identities)
 
     # Button to reset game
@@ -101,11 +106,43 @@ class TicTacToeBoard(tk.Tk, Node):
         restart_button = tk.Frame(master=self.tk)
         # Creating button Object
         restart_button = tk.Button(self.tk, text='Restart Game',
-        font = font.Font(size=30, weight='bold'),
-        command=send_Gamestate,
+        font = font.Font(size=30, weight='bold')
         )
         # Places button in center of frame
         restart_button.pack(padx=20,pady=20)
+
+    def draw_symbol(self):
+        """
+        Draw X/O
+        """
+        i = self.buttons_pressed
+        for i, move in enumerate(board):
+            if move == 1 or 0:
+                pass
+                
+        
+    def display_wins():
+        if self.Game_Info == None:
+            return
+        # Draw couter
+        sami_wins = self.Game_Info.score[0]
+        player_wins = self.Game_Info.score[1]
+
+    def send_player_move(self):
+        # Check if it is player turn
+        if self.Game_Info == 0 or not self.newTurn_client.wait_for_service(timeout_sec=1):
+            return
+        
+        # TODO Button index translated to [0-8]
+        location = 6 #Replace with button thing
+        newTurn = PlayerTurn.Request()
+        newTurn.player_id = player_id
+        newTurn.location = location
+        # Make request on server for Kyle code to change .msg file
+        self.newTurn_client.call_async(newTurn)
+        self.log(f"Player turn on {location}")
+
+
     # Running startup of all tasks within class
     def run(self):
         while rclpy.ok:
@@ -113,20 +150,28 @@ class TicTacToeBoard(tk.Tk, Node):
             self.tk.update_idletasks()
             self.tk.update()
 
-# Restart fuction that sends gamestate update to .srv file
-def send_Gamestate():
-    print("The game has been restarted.")
-
-# Adds symbol based on computer input
-# Pulls from GameState.msg, uses button indices to place computer's symbol (may keep constant for first product)
-def add_symbol():
-    print("Worked")
-
+    def log(self, msg):
+        """
+        log to topic and to curses terminal window
+        """
+        if self.logging:
+            newmsg = GameLog()
+            newmsg.stamp = self.get_clock().now().to_msg()
+            newmsg.node_name = self.get_name()
+            newmsg.content = msg
+            self.pubLog.publish(newmsg)
+        self.get_logger().info(msg)
 
 # Defining GUI func
 def main(args=None):
     rclpy.init(args=args)
     board = TicTacToeBoard()
+
+def record(button,buttons_pressed):
+    buttons_pressed.append(button)
+    print(f"stored: {buttons_pressed}")
+    button.config(text = "X")    
+
 
 # Starting process
 if __name__ == '__main__':
