@@ -121,16 +121,16 @@ class TicTacToeBoard(tk.Tk, Node):
         # Places button in center of frame
         restart_button.pack(padx=20,pady=20)
         
-    def display_wins():
-        if self.Game_Info == None:
-            return
-        # Draw couter
-        sami_wins = self.Game_Info.score[0]
-        player_wins = self.Game_Info.score[1]
-        win_counter = tk.Frame(master=self.tk)
-        win_counter = tk.text(f"Sami Wins: {sami_wins},
-            Player Wins: {player_wins}")
-        win_counter.pack(tk.side=LEFT)
+    #def display_wins():
+    #    if self.Game_Info == None:
+    #        return
+    #    # Draw couter
+    #    sami_wins = self.Game_Info.score[0]
+    #    player_wins = self.Game_Info.score[1]
+    #    win_counter = tk.Frame(master=self.tk)
+    #    win_counter = tk.text(f"Sami Wins: {sami_wins},
+    #        Player Wins: {player_wins}")
+    #    win_counter.pack(tk.side=LEFT)
 
     # Running startup of all tasks within class
     def run(self):
