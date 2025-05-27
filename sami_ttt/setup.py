@@ -17,10 +17,11 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.py'))),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.xml'))),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.yaml'))),
-        (os.path.join('share', package_name, 'assets'), glob('assets/**/*', recursive=True)),
         (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/test1.py')),
         (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/test2.py')),
         (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/dummytest1.py')),
+    
+        (os.path.join('share', package_name, 'assets'), glob('assets/**/*', recursive=True)),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -34,8 +35,8 @@ setup(
             'ttt_console = sami_ttt.ttt_game_console:createConsole',
             'ttt_game = sami_ttt.ttt_game:createGame',
             'misty_control = sami_ttt.misty_control:createMisty',
-            'ttt_gui = sami_ttt.ttt_gui:main'
-            'misty_testread = sami_ttt.misty_control:dummymovetest1',
+            'ttt_gui = sami_ttt.ttt_gui:main',
+            'misty_testread = sami_ttt.misty_control:dummymovetest1', #TEMP
         ],
     },
 )
