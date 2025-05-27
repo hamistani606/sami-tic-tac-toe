@@ -166,7 +166,7 @@ class TicTacGame(Node):
         #self.log(total)
         # assign win
         if total == 0 or total == 3:
-            #self.log(f"User {turn} wins!")
+            self.log(f"User {turn} wins!")
             self.GameState.score[self.GameState.turn] += 1
             self.GameState.win = self.GameState.turn
             return
@@ -176,7 +176,7 @@ class TicTacGame(Node):
 
         # assign win
         if total == 0 or total == 3:
-            #self.log(f"User {turn} wins!")
+            self.log(f"User {turn} wins!")
             self.GameState.score[self.GameState.turn] += 1
             self.GameState.win = self.GameState.turn
             return
@@ -186,7 +186,7 @@ class TicTacGame(Node):
 
         # assign win
         if total == 0 or total == 3:
-            s#elf.log(f"User {turn} wins!")
+            self.log(f"User {turn} wins!")
             self.GameState.score[self.GameState.turn] += 1
             self.GameState.win = self.GameState.turn
             return
@@ -207,7 +207,7 @@ class TicTacGame(Node):
                     total += mv
             if total != -1:
                 break
-        self.log(f'{total}')
+        #self.log(f'{total}')
         return total
 
 
