@@ -39,6 +39,13 @@ class TicTacToeBoard(tk.Tk, Node):
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.subGame = self.create_subscription(GameState, 'game_state', self.update_game, 10)
         self.Game_Info = None
+
+        while not self.newGame_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Waiting for new_game service...')
+        request = NewGame.Request()
+        self.newGame_client.call_async(request)
+        self.log("Requested new game on GUI startup.")
+
         self.run()
 
     def update_game(self, Gameinfo):
@@ -49,19 +56,16 @@ class TicTacToeBoard(tk.Tk, Node):
         self.Game_Info = Gameinfo
         # Loop over game board for unplayed moves, check unrecognized moves
         for idx, mv in enumerate(self.Game_Info.board):
-            if mv == 0:
-                if idx not in self.sami_moves:
+            if mv == 0 and idx not in self.sami_moves:
+                    self.sami_moves.append(idx)
                     self.buttons_pressed.append(idx)
-                    print(self.button_identities,idx)
-                    print(f"stored: {self.buttons_pressed}")
                     self.button_identities[idx].config(text='O')
 
-        if self.Game_Info.turn == None:
+        if self.Game_Info.turn is None:
             return
         # Draw couter
         sami_wins = self.Game_Info.score[0]
         player_wins = self.Game_Info.score[1]
-        win_counter = tk.Frame(master=self.tk)
         win_counter = tk.Label(self.tk, text=f"Sami Wins: {sami_wins}, Player Wins: {player_wins}")
         win_counter.pack()
     
@@ -84,6 +88,7 @@ class TicTacToeBoard(tk.Tk, Node):
         grid_frame = tk.Frame(master=self.tk)
         grid_frame.pack()
         self.button_identities = []
+        self.buttons_pressed = []
         for row in range(3):
             # Adding specification for row sizes
             self.rowconfigure(row, weight=1, minsize=100)
@@ -105,13 +110,7 @@ class TicTacToeBoard(tk.Tk, Node):
                 )
                 # Placing buttons on actual grid
                 self._cells[button] = (row, col)
-                button.grid(
-                    row=row,
-                    column=col,
-                    padx=5,
-                    pady=5,
-                    sticky='nsew'
-                )
+                button.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
                 # List containing button IDs
                 self.button_identities.append(button)
 
@@ -128,7 +127,7 @@ class TicTacToeBoard(tk.Tk, Node):
         
     # Running startup of all tasks within class
     def run(self):
-        while rclpy.ok:
+        while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0.1)
             self.tk.update_idletasks()
             self.tk.update()
@@ -150,14 +149,18 @@ def main(args=None):
     rclpy.init(args=args)
     board = TicTacToeBoard()
 
-def record(button,buttons_pressed,button_identities, self):
+def record(button, buttons_pressed, button_identities, self):
     # Check if it is player turn
-    if self.Game_Info == 0 or not self.newTurn_client.wait_for_service(timeout_sec=1):
+    if self.Game_Info is None:
+        self.log("Game state not initialized yet.")
         return
+    
+    if self.Game_Info.turn != 1 or not self.newTurn_client.wait_for_service(timeout_sec=1):
+        self.log("Not player's turn or turn service not available.")
+        return
+    
     if button not in buttons_pressed:
         buttons_pressed.append(button)
-        print(button_identities,button)
-        print(f"stored: {buttons_pressed}")
         button_identities[button].config(text='X')
     # Button index translated to [0-8]
     location = button

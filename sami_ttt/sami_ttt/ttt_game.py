@@ -28,7 +28,20 @@ class TicTacGame(Node):
         self.newGame_srv = self.create_service(NewGame, 'new_game', self.newGame)
         self.playerTurn_srv = self.create_service(PlayerTurn, 'player_turn', self.playerTurn)
         self.newGame_client = self.create_client(NewGame, 'new_game')
-        # TODO: how to implement computer's turn
+        self.difficulty = "medium"  # change this to easy, medium, or hard
+
+        self.auto_start_game()
+
+    def auto_start_game(self):
+        req = NewGame.Request()
+        while not self.newGame_client.wait_for_service(timeout_sec=1.0):
+            self.log("Waiting for /new_game service...")
+        future = self.newGame_client.call_async(req)
+        rclpy.spin_until_future_complete(self, future)
+        if future.result() is not None:
+            self.log("New game initialized on startup.")
+        else:
+            self.log("Failed to initialize new game.")
 
     def newGame(self, request, response):
         """
@@ -64,6 +77,9 @@ class TicTacGame(Node):
 
         self.pubGame.publish(newGame)
 
+        if newGame.turn == 0:
+            self.make_misty_move()
+
         return response
 
     def newGame_request(self):
@@ -84,6 +100,12 @@ class TicTacGame(Node):
         Respondes true / false for valid move or not
         publishes updated GameState msg
         """
+        # check for started game
+        if self.GameState is None:
+            self.log("No game started yet!")
+            response.valid = False
+            return response
+        
         # check for correct id
         if request.player_id != self.GameState.turn:
             self.log("Wrong player!")
@@ -126,6 +148,7 @@ class TicTacGame(Node):
                 # TODO: Also animation here
                 self.GameState.turn = 0
                 self.log("My turn!")
+                self.make_misty_move()
 
         # publish updated game state
         self.pubGame.publish(self.GameState)
@@ -134,10 +157,67 @@ class TicTacGame(Node):
 
         return response
 
-        
-
         # set move
+
+    def make_misty_move(self):
+        if self.GameState is None:
+            return
+        
+        available = [i for i, x in enumerate(self.GameState.board) if x == -1]
+        if not available:
+            return
+        
+        move = None
+        if self.difficulty == "easy":
+            move = random.choice(available)
+        elif self.difficulty == "medium":
+            move = self.find_best_move() if random.random() < 0.7 else random.choice(available)
+        elif self.difficulty == "hard":
+            move = self.find_best_move() if random.random() < 0.99 else random.choice(available)
+        
+        self.GameState.board[move] = 0
+        self.GameState.num_turns += 1
+        self.log(f"Misty places at {move}")
+
+        if self.GameState.num_turns >=5:
+            self.checkForWin()
+
+        if self.GameState.win == 99:
+            self.GameState.turn = 1
+            self.log("Your turn!")
+        
+        self.pubGame.publish(self.GameState)
+
+    def find_best_move(self):
+        for move in range(9):
+            if self.GameState.board[move] == -1:
+                self.GameState.board[move] = 0
+                if self.check_win_simulation(0):
+                    self.GameState.board[move] = -1
+                    return move
+                self.GameState.board[move] = -1
+
+        for move in range(9):
+            if self.GameState.board[move] == -1:
+                self.GameState.board[move] = 1
+                if self.check_win_simulation(1):
+                    self.GameState.board[move] = -1
+                    return move
+                self.GameState.board[move] = -1
+
+        for move in [4, 0, 2, 6, 8, 1, 3, 5, 7]:
+            if self.GameState.board[move] == -1:
+                return move
     
+    def check_win_simulation(self, pid):
+        b = self.GameState.board
+        wins = [
+            [b[0], b[1], b[2]], [b[3], b[4], b[5]], [b[6], b[7], b[8]],
+            [b[0], b[3], b[6]], [b[1], b[4], b[7]], [b[2], b[5], b[8]],
+            [b[0], b[4], b[8]], [b[2], b[4], b[6]]
+        ]
+        return any(all(cell == pid for cell in line) for line in wins)
+
     def checkForWin(self):
         """
         Checks if there a player has won and modifies the score accordingly
@@ -210,6 +290,9 @@ def createGame(args=None):
     game = TicTacGame()
     rclpy.spin(game)
     rclpy.shutdown()
+    
+def main():
+    createGame()
 
 if __name__ == "__main__":
     createGame()
