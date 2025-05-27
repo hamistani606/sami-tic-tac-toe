@@ -38,11 +38,16 @@ class TicTacGame(Node):
         newGame = GameState()
         # randomly choose who goes first
         newGame.turn = random.randint(0, 1)
+        # 0 for sami win, 1 for player win, 99 for currently playing
+        newGame.win = 99
         response.turn = newGame.turn
         newGame.num_turns = 0
         
         # set score
-        newGame.score = request.score
+        if self.GameState is None:
+            newGame.score = [0, 0]
+        else:
+            newGame.score = self.GameState.score
 
         # empty board
         newGame.board = [-1, -1, -1,
@@ -89,17 +94,25 @@ class TicTacGame(Node):
         self.GameState.board[request.location] = self.GameState.turn
         self.GameState.num_turns += 1
         self.log(f"Placed on {request.location}.")
-        # TODO: Check for win condition here?
 
-        # advance turn
-        if self.GameState.turn == 0:
-            self.GameState.turn = 1
-            # TODO: Trigger animation / speech here?
-            self.log("Your turn!")
+
+        # Check for win condition here
+        if self.GameState.num_turns >= 5:
+            self.checkForWin()
+
+        if self.GameState.win != 99:
+            # TODO: someone has won so SAMI text / interaction here
+            pass
         else:
-            # TODO: Also animation here
-            self.GameState.turn = 0
-            self.log("My turn!")
+            # advance turn
+            if self.GameState.turn == 0:
+                self.GameState.turn = 1
+                # TODO: Trigger animation / speech here?
+                self.log("Your turn!")
+            else:
+                # TODO: Also animation here
+                self.GameState.turn = 0
+                self.log("My turn!")
 
         # publish updated game state
         self.pubGame.publish(self.GameState)
@@ -111,6 +124,14 @@ class TicTacGame(Node):
         
 
         # set move
+    
+    def checkForWin(self):
+        """
+        Checks if there a player has won and modifies the score accordingly
+        """
+        pass
+
+
 
     def log(self, msg):
         """
