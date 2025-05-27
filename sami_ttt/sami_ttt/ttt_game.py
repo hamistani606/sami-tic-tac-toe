@@ -161,54 +161,33 @@ class TicTacGame(Node):
         #self.log(f"rows: {rows}")
         #self.log(f"cols: {cols}")
         #self.log(f"diags: {diags}")
-        total = self.totalForWinCheck(rows)
-        turn = int(self.GameState.turn)
-        #self.log(total)
-        # assign win
-        if total == 0 or total == 3:
-            self.log(f"User {turn} wins!")
-            self.GameState.score[self.GameState.turn] += 1
-            self.GameState.win = self.GameState.turn
+
+        # check rows, cols, diags for user win.
+        if self.checkAllCombos(rows):
             return
-
-        # check cols
-        total = self.totalForWinCheck(rows)
-
-        # assign win
-        if total == 0 or total == 3:
-            self.log(f"User {turn} wins!")
-            self.GameState.score[self.GameState.turn] += 1
-            self.GameState.win = self.GameState.turn
+        elif self.checkAllCombos(cols):
             return
-
-        # check diags
-        total = self.totalForWinCheck(rows)
-
-        # assign win
-        if total == 0 or total == 3:
-            self.log(f"User {turn} wins!")
-            self.GameState.score[self.GameState.turn] += 1
-            self.GameState.win = self.GameState.turn
+        elif self.checkAllCombos(diags):
             return
 
         self.log("No win yet")
 
-    def totalForWinCheck(self, combos):
+    def checkAllCombos(self, combos):
         """
         loops over combos to find the total
         """
-        total = 0
         for combo in combos:
-            for mv in combo:
-                if mv == -1:
-                    total = -1
-                    break
-                else:
-                    total += mv
-            if total != -1:
-                break
-        #self.log(f'{total}')
-        return total
+            result = all(x == combo[0] for x in combo)
+            #self.log(f"Row result: {result}")
+            if result:
+                # assign win
+                if combo[0] != -1:
+                    self.GameState.win = self.GameState.turn
+                    self.GameState.score[self.GameState.turn] += 1
+                    self.log(f"Player id {self.GameState.turn} wins!")
+                    return result
+
+        return False
 
 
         
