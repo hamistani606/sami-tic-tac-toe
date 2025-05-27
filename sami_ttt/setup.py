@@ -32,6 +32,7 @@ setup(
             'ttt_game = sami_ttt.ttt_game:createGame',
             'misty_control = sami_ttt.misty_control:createMisty',
             'ttt_gui = sami_ttt.ttt_gui:main'
+            'misty_testread = sami_ttt.misty_control:dummymovetest1',
         ],
     },
 )
