@@ -67,12 +67,12 @@ class TicTacToeBoard(tk.Tk, Node):
         # Adding grid to master frame and centering in middle
         grid_frame = tk.Frame(master=self.tk)
         grid_frame.pack()
+        self.button_identities = []
         for row in range(3):
             # Adding specification for row sizes
             self.rowconfigure(row, weight=1, minsize=100)
             self.columnconfigure(row, weight=1, minsize=100)
             # Stores button ID for later use
-            self.button_identities = []
             self.buttons_pressed = []
             # Iterating through loop and creating all buttons
             for col in range(3):
@@ -85,7 +85,7 @@ class TicTacToeBoard(tk.Tk, Node):
                     width=3,
                     height=1,
                     highlightbackground='lightblue',
-                    command=lambda n=num: record(n, self.buttons_pressed)
+                    command=lambda n=num: record(n, self.buttons_pressed, self.button_identities, self)
                 )
                 # Placing buttons on actual grid
                 self._cells[button] = (row, col)
@@ -98,7 +98,7 @@ class TicTacToeBoard(tk.Tk, Node):
                 )
                 # List containing button IDs
                 self.button_identities.append(button)
-            #print(button_identities)
+
 
     # Button to reset game
     def _create_board_restart(self):
@@ -110,16 +110,6 @@ class TicTacToeBoard(tk.Tk, Node):
         )
         # Places button in center of frame
         restart_button.pack(padx=20,pady=20)
-
-    def draw_symbol(self):
-        """
-        Draw X/O
-        """
-        i = self.buttons_pressed
-        for i, move in enumerate(board):
-            if move == 1 or 0:
-                pass
-                
         
     def display_wins():
         if self.Game_Info == None:
@@ -127,21 +117,6 @@ class TicTacToeBoard(tk.Tk, Node):
         # Draw couter
         sami_wins = self.Game_Info.score[0]
         player_wins = self.Game_Info.score[1]
-
-    def send_player_move(self):
-        # Check if it is player turn
-        if self.Game_Info == 0 or not self.newTurn_client.wait_for_service(timeout_sec=1):
-            return
-        
-        # TODO Button index translated to [0-8]
-        location = 6 #Replace with button thing
-        newTurn = PlayerTurn.Request()
-        newTurn.player_id = player_id
-        newTurn.location = location
-        # Make request on server for Kyle code to change .msg file
-        self.newTurn_client.call_async(newTurn)
-        self.log(f"Player turn on {location}")
-
 
     # Running startup of all tasks within class
     def run(self):
@@ -167,10 +142,22 @@ def main(args=None):
     rclpy.init(args=args)
     board = TicTacToeBoard()
 
-def record(button,buttons_pressed):
-    buttons_pressed.append(button)
-    print(f"stored: {buttons_pressed}")
-    button.config(text = "X")    
+def record(button,buttons_pressed,button_identities, self):
+    # Check if it is player turn
+    if self.Game_Info == 0 or not self.newTurn_client.wait_for_service(timeout_sec=1):
+        return
+    if button not in buttons_pressed:
+        buttons_pressed.append(button)
+        print(button_identities,button)
+        print(f"stored: {buttons_pressed}")
+        button_identities[button].config(text='X')
+    # Button index translated to [0-8]
+    location = button
+    newTurn = PlayerTurn.Request()
+    newTurn.location = location
+    # Make request on server for Kyle code to change .msg file
+    self.newTurn_client.call_async(newTurn)
+    self.log(f"Player turn on {location}")
 
 
 # Starting process
