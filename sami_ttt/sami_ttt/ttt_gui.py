@@ -31,6 +31,8 @@ class TicTacToeBoard(tk.Tk, Node):
         self._cells = {}
         self._create_board_GUI()
         self.create_grid()
+        self.sami_moves = []
+        self.logging = True
         self._create_board_restart()
         self.newGame_client = self.create_client(NewGame, 'new_game')
         self.newTurn_client = self.create_client(PlayerTurn, 'player_turn')
@@ -45,9 +47,17 @@ class TicTacToeBoard(tk.Tk, Node):
         """
         # Adds new game info to instance variable
         self.Game_Info = Gameinfo
-        self.Game_Info.turn
-        self.draw_symbol()
-        self.display_wins()
+        # Loop over game board for unplayed moves, check unrecognized moves
+        for idx, mv in enumerate(self.Game_Info.board):
+            if mv == 0:
+                if idx not in self.sami_moves:
+                    self.buttons_pressed.append(idx)
+                    print(self.button_identities,idx)
+                    print(f"stored: {self.buttons_pressed}")
+                    self.button_identities[idx].config(text='O')
+
+
+        
 
     # Creates master frame (window) that all other items are added to
     def _create_board_GUI(self):
@@ -154,6 +164,7 @@ def record(button,buttons_pressed,button_identities, self):
     # Button index translated to [0-8]
     location = button
     newTurn = PlayerTurn.Request()
+    newTurn.player_id = 1
     newTurn.location = location
     # Make request on server for Kyle code to change .msg file
     self.newTurn_client.call_async(newTurn)
