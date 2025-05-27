@@ -1,0 +1,13 @@
+print('sent command misty.MoveHead(0, 30, 0)')
+print('sent command misty.MoveHead(0, 30, 0)')
+print('sent command misty.MoveArm("left", 70)') # choosing Misty's arm and its position
+print('sent command misty.MoveArm("right", -50)')
+print('sent command time.sleep(0.4)')
+time.sleep(0.4)
+print('sent command misty.MoveArm("right", 0)')
+print('sent command time.sleep(0.4)')
+time.sleep(0.4)
+print('sent command misty.MoveArm("right", -50)')
+print('sent command time.sleep(0.4)')
+time.sleep(0.4)
+print('sent command misty.MoveArm("right", 0)')
