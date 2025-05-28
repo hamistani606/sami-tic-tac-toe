@@ -258,20 +258,27 @@ class TicTacGame(Node):
         """
         oneFree = False
         for combo in combos:
-            result = all(x == combo[0] for x in combo)
+            one = combo[0]
+            two = combo[1]
+            three = combo[2]
+            result = set(one, two, three)
             #self.log(f"Row result: {result}")
-            if result:
-                # assign win
-                if combo[0] != -1:
+            if len(result)==1:
+                # combo is all the same player (or unused)
+                if one != -1:
+                    # one of the players won
                     self.GameState.win = self.GameState.turn
                     self.GameState.score[self.GameState.turn] += 1
                     self.log(f"Player id {self.GameState.turn} wins!")
                     return result
             else:
-                # row is not all the same player
-                for mv in combo:
-                    if mv == -1:
-                        oneFree = True
+                if one == -1:
+                    oneFree = True
+                elif two == -1:
+                    oneFree = True
+                elif three == -1:
+                    oneFree = True
+                
         
         if not oneFree:
             # tie
