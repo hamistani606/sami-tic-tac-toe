@@ -122,8 +122,15 @@ class TicTacToeBoard(tk.Tk, Node):
         restart_button = tk.Button(self.tk, text='Restart Game',
         font = font.Font(size=30, weight='bold')
         )
-        # Places button in center of frame
+        # TODO add in different function and add command button in center of frame
         restart_button.pack(padx=20,pady=20)
+        if not self.newGame_client.wait_for_service(timeout_sec=1):
+            self.log("Game node not active.")
+            return
+        request = NewGame.Request()
+        self.NewGame_response = self.newGame_client.call_async(request)
+        self.log("Requested new game")
+
         
     # Running startup of all tasks within class
     def run(self):
