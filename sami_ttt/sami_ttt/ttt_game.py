@@ -256,6 +256,7 @@ class TicTacGame(Node):
         """
         loops over combos to find the total
         """
+        oneFree = False
         for combo in combos:
             result = all(x == combo[0] for x in combo)
             #self.log(f"Row result: {result}")
@@ -266,6 +267,17 @@ class TicTacGame(Node):
                     self.GameState.score[self.GameState.turn] += 1
                     self.log(f"Player id {self.GameState.turn} wins!")
                     return result
+            else:
+                # row is not all the same player
+                for mv in combo:
+                    if mv == -1:
+                        oneFree = True
+        
+        if not oneFree:
+            # tie
+            self.GameState.win = 2
+            self.log(f"It's a tie!")
+
 
         return False
 

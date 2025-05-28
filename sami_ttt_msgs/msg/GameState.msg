@@ -1,6 +1,6 @@
 # turn = 0 for computer's turn, 1 for player's turn
 int64 turn
-# set to 0 when SAMI wins, 1 when player wins, 99 when game is running
+# set to 0 when SAMI wins, 1 when player wins, 2 when its a tie, 99 when game is running
 int64 win
 # counts number of turns in game
 int64 num_turns
