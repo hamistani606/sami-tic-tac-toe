@@ -18,6 +18,8 @@ import curses
 
 from sami_ttt_msgs.msg import GameLog, GameState
 from sami_ttt_msgs.srv import NewGame, PlayerTurn
+from sami_ttt_msgs.srv import MistyConnect
+from sami_ttt_msgs.action import MistyMovement
 #from sami_trivia_msgs.srv import NewQuestion, SerialConnect, CheckAnswer
 #from sami_trivia_msgs.action import MoveSami, Speak, Listen
 
@@ -25,6 +27,8 @@ class TicTacConsole(Node):
     def __init__(self):
         super().__init__('ttt_console')
         self.started = False
+        self.moving = False
+        self.connected = False
         self.inputMode = False
         self.gameLog = []
         self.score = None
@@ -33,6 +37,9 @@ class TicTacConsole(Node):
         self.subGame = self.create_subscription(GameState, 'game_state', self.readGameState, 10)
         self.newGame_client = self.create_client(NewGame, 'new_game')
         self.newTurn_client = self.create_client(PlayerTurn, 'player_turn')
+        self.connect_client = self.create_client(MistyConnect, 'misty_connect')
+
+        self.mistyMove_client = ActionClient(self, MistyMovement, "mistymovement")
 
         # self.moveClient = ActionClient(self, MoveSami, 'move_sami')
         # self.arduinoClient = self.create_client(SerialConnect, 'serial_connect')
@@ -118,7 +125,7 @@ class TicTacConsole(Node):
         #stdscr.addstr(height-2,0,"Keybinds: [Q] QUIT [C] Connect SAMI [ENTER] New Question")
         key_str = "Keybinds: "
         q_str = "[Q] QUIT "
-        c_str = "[C] Connect SAMI "
+        c_str = "[C] Connect Misty "
         i_str = "[I] Input Mode "
         '''
         if self.waiting:
@@ -272,6 +279,62 @@ class TicTacConsole(Node):
         newTurn.location = location
         self.newTurn_response = self.newTurn_client.call_async(newTurn)
         self.log(f"Requested turn for id {player_id}, location {location}")
+
+    def mistyConnect_request(self):
+        """
+        Service request to connect to misty robot
+        """
+        if not self.connect_client.wait_for_service(timeout_sec=1):
+            self.log("misty node not active")
+            return
+
+        self.connected = True
+
+        newMisty = MistyConnect.Request()
+        newMisty.ip = "192.168.0.174"
+        self.newMisty_response = self.connect_client.call_async(newMisty)
+        self.log("Requested to connect to misty")
+
+    def moveMisty(self, emote):
+        """
+        Action call to animate misty
+        """
+        if self.moving:
+            self.log("misty currently moving!")
+            return
+        else:
+            self.moving = True
+        goal = MistyMovement.Goal()
+        goal.behavior = emote
+        self.moveClient.wait_for_server()
+
+        self.moveResult = self.moveClient.send_goal_async(goal, feedback_callback=self.move_feedback)
+        self.moveResult.add_done_callback(self.move_response)
+
+    def move_feedback(self, msg):
+        """
+        Feedback callback for the movement action server
+        """
+        self.log(msg.progress)
+
+    def move_response(self, future):
+        """
+        action accepted or rejected
+        """
+        self.move_goal_handle = future.result()
+
+        if not self.move_goal_handle.accepted:
+            self.log(f"misty move not accepted")
+            return
+
+        self.move_result_handle = self.move_goal_handle.get_result_async()
+        self.move_result_handle.add_done_callback(self.mistyDoneMoving)
+
+    def mistyDoneMoving(self, future):
+        """
+        This is called when misty has finished moving
+        """
+        self.moving = False
 
 
 
