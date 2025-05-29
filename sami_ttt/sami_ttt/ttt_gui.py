@@ -33,6 +33,9 @@ class TicTacToeBoard(tk.Tk, Node):
         self.create_grid()
         self.sami_moves = []
         self.logging = True
+        self.controls_frame = tk.Frame(master=self.tk)
+        self.controls_frame.pack(side=tk.BOTTOM, pady=20)
+        self._create_difficulty_menu()
         self._create_board_restart()
         self.newGame_client = self.create_client(NewGame, 'new_game')
         self.newTurn_client = self.create_client(PlayerTurn, 'player_turn')
@@ -43,6 +46,7 @@ class TicTacToeBoard(tk.Tk, Node):
         while not self.newGame_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('Waiting for new_game service...')
         request = NewGame.Request()
+        request.difficulty = self.difficulty_var.get()
         self.newGame_client.call_async(request)
         self.log("Requested new game on GUI startup.")
 
@@ -63,11 +67,15 @@ class TicTacToeBoard(tk.Tk, Node):
 
         if self.Game_Info.turn is None:
             return
-        # Draw couter
+        # Draw counter
         sami_wins = self.Game_Info.score[0]
         player_wins = self.Game_Info.score[1]
-        win_counter = tk.Label(self.tk, text=f"Sami Wins: {sami_wins}, Player Wins: {player_wins}")
-        win_counter.pack()
+        # Win counter label
+        if not hasattr(self, 'win_counter'):
+            self.win_counter = tk.Label(self.controls_frame, font=font.Font(size=16))
+            self.win_counter.pack(side=tk.RIGHT, padx=(20, 0))
+        self.win_counter.config(text=f"Sami Wins: {sami_wins}, Player Wins: {player_wins}")
+
     
     # Creates master frame (window) that all other items are added to
     def _create_board_GUI(self):
@@ -93,8 +101,6 @@ class TicTacToeBoard(tk.Tk, Node):
             # Adding specification for row sizes
             self.rowconfigure(row, weight=1, minsize=100)
             self.columnconfigure(row, weight=1, minsize=100)
-            # Stores button ID for later use
-            self.buttons_pressed = []
             # Iterating through loop and creating all buttons
             for col in range(3):
                 num = row * 3 + col
@@ -116,14 +122,27 @@ class TicTacToeBoard(tk.Tk, Node):
 
     # Button to reset game
     def _create_board_restart(self):
-        # Adding button to master frame
-        restart_button = tk.Frame(master=self.tk)
         # Creating button Object
-        restart_button = tk.Button(self.tk, text='Restart Game',
-        font = font.Font(size=30, weight='bold'), command=self.restart_game
+        restart_button = tk.Button(self.controls_frame, text='Restart',
+        font = font.Font(size=16, weight='bold'), command=self.restart_game
         )
         # Places button in center of frame
-        restart_button.pack(padx=20,pady=20)
+        restart_button.pack(side=tk.LEFT, padx=(20, 0))
+
+    # Difficulty menu
+    def _create_difficulty_menu(self):
+        # Difficulty label and menu at bottom center
+        self.difficulty_var = tk.StringVar(value="medium")
+        difficulty_label = tk.Label(
+            master=self.controls_frame,
+            text="Difficulty:",
+            font=font.Font(size=16)
+        )
+        difficulty_label.pack(side=tk.LEFT, padx=(0, 10))
+        difficulty_menu = tk.OptionMenu(self.controls_frame, self.difficulty_var, "easy", "medium", "hard")
+        difficulty_menu.config(font=font.Font(size=14))
+        difficulty_menu.pack(side=tk.LEFT)
+
         
     # Running startup of all tasks within class
     def run(self):
@@ -150,8 +169,9 @@ class TicTacToeBoard(tk.Tk, Node):
             return
         # New game request
         request = NewGame.Request()
+        request.difficulty = self.difficulty_var.get()
         self.newGame_client.call_async(request)
-        self.log("Restart button pressed – new game requested.")
+        self.log(f"Restart button pressed – new game requested with difficulty: {request.difficulty}")
         # Resetting board
         self.Game_Info = None
         self.buttons_pressed.clear()

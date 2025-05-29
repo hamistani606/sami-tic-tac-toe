@@ -55,7 +55,12 @@ class TicTacGame(Node):
         newGame.win = 99
         response.turn = newGame.turn
         newGame.num_turns = 0
-        
+
+        # apply difficulty from request
+        if request.difficulty:
+            self.difficulty = request.difficulty
+            self.log(f"Difficulty set to {self.difficulty}")
+
         # set score
         if self.GameState is None:
             newGame.score = [0, 0]
@@ -105,7 +110,7 @@ class TicTacGame(Node):
             self.log("No game started yet!")
             response.valid = False
             return response
-        
+
         # check for correct id
         if request.player_id != self.GameState.turn:
             self.log("Wrong player!")
@@ -160,21 +165,24 @@ class TicTacGame(Node):
         # set move
 
     def make_misty_move(self):
+        """
+        Assigns a move for misty based off the difficulty settings which are also created and defined in this function
+        """
         if self.GameState is None:
             return
-        
+
         available = [i for i, x in enumerate(self.GameState.board) if x == -1]
         if not available:
             return
-        
+
         move = None
         if self.difficulty == "easy":
             move = random.choice(available)
         elif self.difficulty == "medium":
-            move = self.find_best_move() if random.random() < 0.7 else random.choice(available)
+            move = self.find_best_move() if random.random() < 0.5 else random.choice(available)
         elif self.difficulty == "hard":
             move = self.find_best_move() if random.random() < 0.99 else random.choice(available)
-        
+
         self.GameState.board[move] = 0
         self.GameState.num_turns += 1
         self.log(f"Misty places at {move}")
@@ -185,10 +193,13 @@ class TicTacGame(Node):
         if self.GameState.win == 99:
             self.GameState.turn = 1
             self.log("Your turn!")
-        
+
         self.pubGame.publish(self.GameState)
 
     def find_best_move(self):
+        """
+        Algorithm for finding the best possible move in a tic-tac-toe game
+        """
         for move in range(9):
             if self.GameState.board[move] == -1:
                 self.GameState.board[move] = 0
@@ -208,7 +219,7 @@ class TicTacGame(Node):
         for move in [4, 0, 2, 6, 8, 1, 3, 5, 7]:
             if self.GameState.board[move] == -1:
                 return move
-    
+
     def check_win_simulation(self, pid):
         b = self.GameState.board
         wins = [
@@ -222,75 +233,31 @@ class TicTacGame(Node):
         """
         Checks if there a player has won and modifies the score accordingly
         """
-        # get rows
-        rows = [[self.GameState.board[0], self.GameState.board[1],self.GameState.board[2]],
-                [self.GameState.board[3], self.GameState.board[4],self.GameState.board[5]],
-                [self.GameState.board[6], self.GameState.board[7],self.GameState.board[8]]]
-        # get cols
-        cols = [[self.GameState.board[0], self.GameState.board[3],self.GameState.board[6]],
-                [self.GameState.board[1], self.GameState.board[4],self.GameState.board[7]],
-                [self.GameState.board[2], self.GameState.board[5],self.GameState.board[8]]]
-        # get diags
-        diags = [[self.GameState.board[0],self.GameState.board[4],self.GameState.board[8]],
-                [self.GameState.board[2],self.GameState.board[4], self.GameState.board[6]]]
-
-        # check for win by just totalling each of these lists^
-        # total will be 0 if sami wins, 3 if player wins, if any are -1 then break
-
-        # check rows
-        #self.log(f"rows: {rows}")
-        #self.log(f"cols: {cols}")
-        #self.log(f"diags: {diags}")
-
-        # check rows, cols, diags for user win.
-        if self.checkAllCombos(rows):
-            return
-        elif self.checkAllCombos(cols):
-            return
-        elif self.checkAllCombos(diags):
+        if self.checkAllCombos():
             return
 
-        self.log("No win yet")
+        if all(x != -1 for x in self.GameState.board):
+            self.GameState.win = 2
+            self.log("It's a tie!")
 
-    def checkAllCombos(self, combos):
+    def checkAllCombos(self):
         """
         loops over combos to find the total
         """
-        oneFree = False
-        for combo in combos:
-            one = combo[0]
-            two = combo[1]
-            three = combo[2]
-            result = set(one, two, three)
-            #self.log(f"Row result: {result}")
-            if len(result)==1:
-                # combo is all the same player (or unused)
-                if one != -1:
-                    # one of the players won
-                    self.GameState.win = self.GameState.turn
-                    self.GameState.score[self.GameState.turn] += 1
-                    self.log(f"Player id {self.GameState.turn} wins!")
-                    return result
-            else:
-                if one == -1:
-                    oneFree = True
-                elif two == -1:
-                    oneFree = True
-                elif three == -1:
-                    oneFree = True
-                
-        
-        if not oneFree:
-            # tie
-            self.GameState.win = 2
-            self.log(f"It's a tie!")
+        b = self.GameState.board
+        win_lines = [
+            [b[0], b[1], b[2]], [b[3], b[4], b[5]], [b[6], b[7], b[8]],
+            [b[0], b[3], b[6]], [b[1], b[4], b[7]], [b[2], b[5], b[8]], 
+            [b[0], b[4], b[8]], [b[2], b[4], b[6]]                       
+        ]
 
-
+        for line in win_lines:
+            if len(set(line)) == 1 and line[0] != -1:
+                self.GameState.win = self.GameState.turn
+                self.GameState.score[self.GameState.turn] += 1
+                self.log(f"Player id {self.GameState.turn} wins!")
+                return True
         return False
-
-
-        
-
 
     def log(self, msg):
         """
@@ -309,7 +276,7 @@ def createGame(args=None):
     game = TicTacGame()
     rclpy.spin(game)
     rclpy.shutdown()
-    
+
 def main():
     createGame()
 

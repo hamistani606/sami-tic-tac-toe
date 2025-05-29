@@ -1,4 +1,5 @@
 # no inputs
+string difficulty
 ---
 # output whos turn it is (0 for computer, 1 for user)
 int64 turn
