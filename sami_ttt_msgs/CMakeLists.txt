@@ -33,6 +33,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/PlayerTurn.srv"
   "srv/MistyConnect.srv"
   "action/MistyMovement.action"
+  "action/Speak.action"
+  "action/Listen.action"
   DEPENDENCIES builtin_interfaces
 )
 ament_package()

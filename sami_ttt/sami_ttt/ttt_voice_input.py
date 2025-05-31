@@ -23,8 +23,8 @@ from ament_index_python.packages import get_package_share_directory
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
-from sami_tts_msgs.msg import GameLog
-from sami_tts_msgs.action import Speak, Listen
+from sami_ttt_msgs.msg import GameLog
+from sami_ttt_msgs.action import Speak, Listen
 
 MIC_INDEX   = 0
 SAMPLE_RATE = 48000

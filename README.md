@@ -6,6 +6,12 @@
 put your dependecies here and any weird install steps  
     - curses (no install needed on linux)  
     - Misty-SDK  
+    - gtts  
+    - SpeechRecognition  
+    - playsound  
+        - may need `pip install playsound==1.2.2`
+    - PyAudio  
+        - `sudo apt-get install portaudio19.dev` before installing PyAudio 
   
 ### Game Tools:
 `ros2 launch sami_ttt gameTools.py`  
