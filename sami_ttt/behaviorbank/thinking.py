@@ -1,0 +1,6 @@
+misty.MoveHead(-20, 10 ,-15 ,50)
+time.sleep(0.5)
+misty.MoveHead(10, 10 ,-15 ,50)
+misty.MoveArm("right", -80)
+time.sleep(1)
+misty.MoveHead(0, 0 ,0 ,50)
