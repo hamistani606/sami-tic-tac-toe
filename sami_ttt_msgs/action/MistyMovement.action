@@ -1,5 +1,7 @@
 #goal
 string behavior
+# for speaking, 0 means misty 1 means human
+string words
 ---
 #result
 string completion

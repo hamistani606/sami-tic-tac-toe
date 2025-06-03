@@ -17,7 +17,7 @@ import random
 
 from sami_ttt_msgs.msg import GameLog, GameState
 from sami_ttt_msgs.srv import NewGame, PlayerTurn
-from sami_ttt_msgs.action import Speak
+from sami_ttt_msgs.action import Speak, MistyMovement
 
 class TicTacGame(Node):
     def __init__(self):
@@ -31,10 +31,54 @@ class TicTacGame(Node):
         self.newGame_srv = self.create_service(NewGame, 'new_game', self.newGame)
         self.playerTurn_srv = self.create_service(PlayerTurn, 'player_turn', self.playerTurn)
         self.newGame_client = self.create_client(NewGame, 'new_game')
-        self.speakClient = ActionClient(self, Speak, 'speak')
+
+        self.moveMisty_action = ActionClient(self, Fibonacci, 'fibonacci')
+
+        # self.speakClient = ActionClient(self, Speak, 'speak')
         self.difficulty = "medium"  # change this to easy, medium, or hard
 
         self.auto_start_game()
+
+    def moveMisty(self, behavior:str, words:int):
+        """
+        Action server request to move misty.
+        who refers to the text misty will speak
+        ex 0 for I win, 1 for you win
+        """
+        goal = MistyMovement.Goal()
+        goal.behavior = behavior
+        goal.words = words
+        self.moveMisty_action.wait_for_server()
+        self.moveResult = self.moveMisty_action.send_goal_async(goal, feedback_callback=self.move_fb)
+
+        self.moveResult.add_done_callback(self.moveResponse)
+
+    def move_fb(self, fb_msg):
+        """
+        feedback callback for misty moving action
+        """
+        self.log(fb_msg.progress)
+
+    def moveResponse(self, future):
+        """
+        when misty move action is accepted or rejected
+        """
+        self.move_handle = future.Result()
+        if not self.move_handle.accepted:
+            self.log("goal rejected")
+            return
+
+        self.move_result_handle = self.move_handle.get_result_async()
+        self.move_result_handle.add_done_callback(self.process_move_result)
+        
+    def process_move_result(self, future):
+        """
+        when move action is finished
+        """
+        result = future.Result().completion
+        self.log(result)
+
+
 
     def auto_start_game(self):
         req = NewGame.Request()
@@ -56,13 +100,14 @@ class TicTacGame(Node):
         # randomly choose who goes first
         newGame.turn = random.randint(0, 1)
         if not self.started:
-            self.speak("Welcome to tic tac toe!")
+            # self.speak("Welcome to tic tac toe!")
             self.started = True
         else:
             if newGame.turn == 0:
-                self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")
+                # self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")\pass
             else:
-                self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
+                # self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
+                pass
         # 0 for sami win, 1 for player win, 99 for currently playing
         newGame.win = 99
         response.turn = newGame.turn
@@ -160,13 +205,13 @@ class TicTacGame(Node):
             if self.GameState.turn == 0:
                 self.GameState.turn = 1
                 # TODO: Trigger animation / speech here?
-                self.speak("YOUR TURN!")
+                # self.speak("YOUR TURN!")
                 self.log("Your turn!")
             else:
                 # TODO: Also animation here
                 self.GameState.turn = 0
                 #self.speak("MY TURN")
-                self.log("My turn!")
+                # self.log("My turn!")
                 self.make_misty_move()
 
         # publish updated game state
@@ -252,7 +297,7 @@ class TicTacGame(Node):
 
         if all(x != -1 for x in self.GameState.board):
             self.GameState.win = 2
-            self.speak("It's a tie!")
+            # self.speak("It's a tie!")
             self.log("It's a tie!")
 
     def checkAllCombos(self):
@@ -272,9 +317,11 @@ class TicTacGame(Node):
                 self.GameState.score[self.GameState.turn] += 1
                 self.log(f"Player id {self.GameState.turn} wins!")
                 if self.GameState.turn == 0:
-                    self.speak("I WIN!")
+                    # self.speak("I WIN!")
+                    pass
                 else:
-                    self.speak("YOU WIN!")
+                    # self.speak("YOU WIN!")
+                    pass
                 return True
         return False
 
