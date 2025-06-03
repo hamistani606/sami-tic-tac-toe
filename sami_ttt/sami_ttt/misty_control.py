@@ -57,7 +57,7 @@ class MistyControl(Node):
             lines = behaviorscript.readlines()
 
 
-
+        misty.Speak(goal.request.words)
         while lines:
             # Check to see if we have a cancellation request.  If we do, set the goal
             # status to canceled and return an empty result.
