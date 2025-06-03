@@ -30,8 +30,10 @@ import time
 class MistyControl(Node):
     def __init__(self):
         super().__init__('misty_control')
-        self.misty = None
-        self.connected = False
+        # self.misty = None
+        self.misty = Robot("192.168.0.174")
+        self.connected = True
+        #self.connected = False
         self.connect_srv = self.create_service(MistyConnect, 'misty_connect', self.connectMisty)
         
         #action server for running misty movement behaviors
