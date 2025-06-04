@@ -33,7 +33,7 @@ class TicTacGame(Node):
         self.playerTurn_srv = self.create_service(PlayerTurn, 'player_turn', self.playerTurn)
         self.newGame_client = self.create_client(NewGame, 'new_game')
 
-        self.moveMisty_action = ActionClient(self, Fibonacci, 'fibonacci')
+        self.moveMisty_action = ActionClient(self, MistyMovement, 'mistymovement')
 
         # self.speakClient = ActionClient(self, Speak, 'speak')
         self.difficulty = "medium"  # change this to easy, medium, or hard
@@ -112,15 +112,15 @@ class TicTacGame(Node):
         newGame.turn = random.randint(0, 1)
         if not self.started:
             # self.speak("Welcome to tic tac toe!")
-            self.moveMisty(test1, "Welcome to tic tac toe!")
+            self.moveMisty('test1', "Welcome to tic tac toe!")
             self.started = True
         else:
             if newGame.turn == 0:
                 # self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")\pass
-                self.moveMisty(test1, f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")
+                self.moveMisty('test2', f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")
             else:
                 # self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
-                self.moveMisty(test1, f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
+                self.moveMisty('test2', f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
                 
         # 0 for sami win, 1 for player win, 99 for currently playing
         newGame.win = 99
@@ -316,7 +316,7 @@ class TicTacGame(Node):
         if all(x != -1 for x in self.GameState.board):
             self.GameState.win = 2
             # self.speak("It's a tie!")
-            self.moveMisty(win1, "It's a tie!")
+            self.moveMisty('win1', "It's a tie!")
             self.log("It's a tie!")
 
     def checkAllCombos(self):
@@ -337,11 +337,11 @@ class TicTacGame(Node):
                 self.log(f"Player id {self.GameState.turn} wins!")
                 if self.GameState.turn == 0:
                     # self.speak("I WIN!")
-                    self.moveMisty(win1, "I WIN!")
+                    self.moveMisty('win1', "I WIN!")
                     pass
                 else:
                     # self.speak("YOU WIN!")
-                    self.moveMisty(loss1, "YOU WIN!")
+                    self.moveMisty('loss1', "YOU WIN!")
                     pass
                 return True
         return False

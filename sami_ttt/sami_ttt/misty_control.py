@@ -50,14 +50,14 @@ class MistyControl(Node):
         # action type.  Once we build it, we set the return data, in sequence, to an
         # empty list.
         result = MistyMovement.Result()
-        result.status = 'in_progress'
+        result.completion = 'in_progress'
         filename = 'install/sami_ttt/share/sami_ttt/behaviorbank/' + str(goal.request.behavior) + '.py'
         lines = []
         with open(filename,'r') as behaviorscript:
             lines = behaviorscript.readlines()
 
 
-        misty.Speak(goal.request.words)
+        self.misty.Speak(goal.request.words)
         while lines:
             # Check to see if we have a cancellation request.  If we do, set the goal
             # status to canceled and return an empty result.
