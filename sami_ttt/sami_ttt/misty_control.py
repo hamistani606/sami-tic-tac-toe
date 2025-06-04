@@ -65,14 +65,14 @@ class MistyControl(Node):
             if goal.is_cancel_requested:
                 goal.canceled()
                 self.get_logger().info('And, the goal is canceled.')
-                result.status = 'canceled'
+                result.completion = 'canceled'
                 return MistyMovement.Result()
 
             # Because of the way the exec() works here, loops in the files do not work, theyll break code
             exec(lines.pop(0))
             
-            result.status = 'running'
-            goal.publish_feedback(MistyMovement.Feedback(progress=result.status))
+            result.completion = 'running'
+            goal.publish_feedback(MistyMovement.Feedback(progress=result.completion))
 
 
         # Let the action server know that we've succeeded in the action.  It it doesn't

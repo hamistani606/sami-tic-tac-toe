@@ -58,6 +58,7 @@ class TicTacGame(Node):
         self.moveMisty_action.wait_for_server()
         # spin until future complete whenever you call the move misty
         self.moveResult = self.moveMisty_action.send_goal_async(goal)
+        #rclpy.spin_until_future_complete(self, self.moveResult)
 
         #self.moveResult = self.moveMisty_action.send_goal_async(goal, feedback_callback=self.move_fb)
 
@@ -222,14 +223,14 @@ class TicTacGame(Node):
                 # self.speak("YOUR TURN!")
                 self.log("Your turn!")
                 self.moveMisty("playerturn", "Your turn!")
-                rclpy.spin_until_future_complete(self.moveResult, future)
+                #rclpy.spin_until_future_complete(self, self.moveResult)
             else:
                 # TODO: Also animation here
                 self.GameState.turn = 0
                 #self.speak("MY TURN")
                 # self.log("My turn!")
                 self.moveMisty("thinking", "My turn! hmmm...")
-                rclpy.spin_until_future_complete(self.moveResult, future)
+                #rclpy.spin_until_future_complete(self, self.moveResult)
                 self.make_misty_move()
 
         # publish updated game state

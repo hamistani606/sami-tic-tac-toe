@@ -17,9 +17,10 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.py'))),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.xml'))),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*.yaml'))),
-        (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/test1.py')),
-        (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/test2.py')),
-        (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/dummytest1.py')),
+        #(os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/test1.py')),
+        #(os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/test2.py')),
+        #(os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/dummytest1.py')),
+        (os.path.join('share', package_name, 'behaviorbank'), glob('behaviorbank/**/*', recursive=True)),
     
         (os.path.join('share', package_name, 'assets'), glob('assets/**/*', recursive=True)),
     ],
