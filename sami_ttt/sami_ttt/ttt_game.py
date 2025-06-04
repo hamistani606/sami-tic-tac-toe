@@ -25,6 +25,7 @@ class TicTacGame(Node):
         self.logging = True
         self.GameState = None
         self.speaking = False
+        self.moving = False
         self.started = False
         self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.pubGame = self.create_publisher(GameState, 'game_state', 10)
@@ -39,19 +40,28 @@ class TicTacGame(Node):
 
         self.auto_start_game()
 
-    def moveMisty(self, behavior:str, words:int):
+    def moveMisty(self, behavior:str, words:str):
         """
         Action server request to move misty.
         who refers to the text misty will speak
         ex 0 for I win, 1 for you win
         """
+        '''
+        if self.moving:
+            return
+        else:
+            self.moving = True
+        '''
         goal = MistyMovement.Goal()
         goal.behavior = behavior
         goal.words = words
         self.moveMisty_action.wait_for_server()
-        self.moveResult = self.moveMisty_action.send_goal_async(goal, feedback_callback=self.move_fb)
+        # spin until future complete whenever you call the move misty
+        self.moveResult = self.moveMisty_action.send_goal_async(goal)
 
-        self.moveResult.add_done_callback(self.moveResponse)
+        #self.moveResult = self.moveMisty_action.send_goal_async(goal, feedback_callback=self.move_fb)
+
+        #self.moveResult.add_done_callback(self.moveResponse)
 
     def move_fb(self, fb_msg):
         """
@@ -76,6 +86,7 @@ class TicTacGame(Node):
         when move action is finished
         """
         result = future.Result().completion
+        self.moving = False
         self.log(result)
 
 
@@ -101,13 +112,16 @@ class TicTacGame(Node):
         newGame.turn = random.randint(0, 1)
         if not self.started:
             # self.speak("Welcome to tic tac toe!")
+            self.moveMisty(test1, "Welcome to tic tac toe!")
             self.started = True
         else:
             if newGame.turn == 0:
                 # self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")\pass
+                self.moveMisty(test1, f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you.")
             else:
                 # self.speak(f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
-                pass
+                self.moveMisty(test1, f"Score is {self.GameState.score[0]} me, {self.GameState.score[1]} you. YOUR TURN!!")
+                
         # 0 for sami win, 1 for player win, 99 for currently playing
         newGame.win = 99
         response.turn = newGame.turn
@@ -207,11 +221,15 @@ class TicTacGame(Node):
                 # TODO: Trigger animation / speech here?
                 # self.speak("YOUR TURN!")
                 self.log("Your turn!")
+                self.moveMisty("playerturn", "Your turn!")
+                rclpy.spin_until_future_complete(self.moveResult, future)
             else:
                 # TODO: Also animation here
                 self.GameState.turn = 0
                 #self.speak("MY TURN")
                 # self.log("My turn!")
+                self.moveMisty("thinking", "My turn! hmmm...")
+                rclpy.spin_until_future_complete(self.moveResult, future)
                 self.make_misty_move()
 
         # publish updated game state
@@ -298,6 +316,7 @@ class TicTacGame(Node):
         if all(x != -1 for x in self.GameState.board):
             self.GameState.win = 2
             # self.speak("It's a tie!")
+            self.moveMisty(win1, "It's a tie!")
             self.log("It's a tie!")
 
     def checkAllCombos(self):
@@ -318,9 +337,11 @@ class TicTacGame(Node):
                 self.log(f"Player id {self.GameState.turn} wins!")
                 if self.GameState.turn == 0:
                     # self.speak("I WIN!")
+                    self.moveMisty(win1, "I WIN!")
                     pass
                 else:
                     # self.speak("YOU WIN!")
+                    self.moveMisty(loss1, "YOU WIN!")
                     pass
                 return True
         return False
