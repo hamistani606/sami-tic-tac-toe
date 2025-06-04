@@ -34,6 +34,8 @@ class MistyControl(Node):
         self.misty = Robot("192.168.0.174")
         self.connected = True
         #self.connected = False
+        self.logging = True
+        self.pubLog = self.create_publisher(GameLog, 'game_log', 10)
         self.connect_srv = self.create_service(MistyConnect, 'misty_connect', self.connectMisty)
         
         #action server for running misty movement behaviors
@@ -69,7 +71,9 @@ class MistyControl(Node):
                 return MistyMovement.Result()
 
             # Because of the way the exec() works here, loops in the files do not work, theyll break code
-            exec(lines.pop(0))
+            newln = lines.pop(0)
+            self.log(f"{newln}")
+            exec(newln)
             
             result.completion = 'running'
             goal.publish_feedback(MistyMovement.Feedback(progress=result.completion))
@@ -139,7 +143,9 @@ def dummymovetest1():
             print('And, the goal is canceled.')
             resultstatus = 'canceled'
         # Because of the way the exec() works here, loops in the files do not work, theyll break code
-        exec(lines.pop(0))
+        newln = lines.pop(0)
+        self.log(f"{newln}")
+        exec(newln)
         resultstatus = 'running'
         print(resultstatus)
     print('successful run')

@@ -317,7 +317,7 @@ class TicTacGame(Node):
         if all(x != -1 for x in self.GameState.board):
             self.GameState.win = 2
             # self.speak("It's a tie!")
-            self.moveMisty('win1', "It's a tie!")
+            self.moveMisty('win2', "It's a tie!")
             self.log("It's a tie!")
 
     def checkAllCombos(self):
