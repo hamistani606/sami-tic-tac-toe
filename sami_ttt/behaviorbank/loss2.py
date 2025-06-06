@@ -1,3 +1,4 @@
+self.misty.Speak("AAAAAAAAAAHHHHHHHHHHHHH", None, None, None, True, "tts-content")
 self.misty.DriveTime(0,20,1000)
 time.sleep(1000)
 self.misty.MoveArms(-29,90, LeftArmVelocity = 100, RightArmVelocity = 100)
