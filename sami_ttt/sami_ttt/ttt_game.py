@@ -354,7 +354,10 @@ class TicTacGame(Node):
                     pass
                 else:
                     # self.speak("YOU WIN!")
-                    self.moveMisty('loss2', "YOU WIN!")
+                    if random.randint(0, 1):
+                        self.moveMisty('loss1', "aww you beat me")
+                    else:
+                        self.moveMisty('loss2', "AAA YOU WIN!")
                     pass
                 return True
         return False
