@@ -229,7 +229,7 @@ class TicTacGame(Node):
                 self.GameState.turn = 0
                 #self.speak("MY TURN")
                 # self.log("My turn!")
-                self.moveMisty("thinking", "My turn! hmmm...")
+                self.moveMisty("thinking", "My turn! hmm...")
                 #rclpy.spin_until_future_complete(self, self.moveResult)
                 self.make_misty_move()
 

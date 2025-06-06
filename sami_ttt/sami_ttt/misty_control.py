@@ -59,7 +59,7 @@ class MistyControl(Node):
             lines = behaviorscript.readlines()
 
 
-        self.misty.Speak(goal.request.words)
+        self.misty.Speak(goal.request.words, None, None, None, True, "tts-content")
         while lines:
             # Check to see if we have a cancellation request.  If we do, set the goal
             # status to canceled and return an empty result.
