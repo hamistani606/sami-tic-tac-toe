@@ -58,8 +58,20 @@ class TicTacGame(Node):
         self.moveMisty_action.wait_for_server()
         # spin until future complete whenever you call the move misty
         self.moveResult = self.moveMisty_action.send_goal_async(goal)
-        #rclpy.spin_until_future_complete(self, self.moveResult)
+        # should spin until movement is done but i cant get this working
+        '''
+        rclpy.spin_until_future_complete(self, self.moveResult)
+        self.log("first spin")
+        goal_handle = self.moveResult.result()
+        if not goal_handle.accepted:
+            # handle rejection…
+            return
 
+        result_future = goal_handle.get_result_async()
+        rclpy.spin_until_future_complete(self, result_future)
+        self.log("second spin")
+        result = result_future.result().result
+        '''
         #self.moveResult = self.moveMisty_action.send_goal_async(goal, feedback_callback=self.move_fb)
 
         #self.moveResult.add_done_callback(self.moveResponse)
@@ -342,7 +354,7 @@ class TicTacGame(Node):
                     pass
                 else:
                     # self.speak("YOU WIN!")
-                    self.moveMisty('loss1', "YOU WIN!")
+                    self.moveMisty('loss2', "YOU WIN!")
                     pass
                 return True
         return False
