@@ -20,6 +20,7 @@ NOT IMPLEMENTED YET
   
 ### Board GUI:
 This is John's GUI using the LCD screen. Displays the board and relays the user's input with the service call to `ttt_game`.
+Also passes the "restart game" service call and displays the robot and player win parameters.
   
 ### UI Controller:
 `ros2 run sami_ttt ttt_console`  
