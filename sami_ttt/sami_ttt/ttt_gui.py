@@ -76,17 +76,41 @@ class NormalGameBoard(TicTacToeBoard):
         #     self.cheat_mode = True
         # else:
         #     self.cheat_mode = False
+        # if self.parent_app:
+        #     finished_games = self.parent_app.player_score + self.parent_app.sami_score
+        #     if finished_games == 1:
+        #         self.cheat_mode = True
+        #         self.cheat_strength = 0.5
+        #     elif finished_games == 2:
+        #         self.cheat_mode = True
+        #         self.cheat_strength = 0.9
+        #     else:
+        #         self.cheat_mode = False
+        #         self.cheat_strength = 0.0
+        # self.cheated_this_game = False
+        # self.sami_turn_count = 0
         if self.parent_app:
-            finished_games = self.parent_app.player_score + self.parent_app.sami_score
-            if finished_games == 1:
-                self.cheat_mode = True  # Cheat on 2nd game
-            else:
+            current_game = self.parent_app.player_score + self.parent_app.sami_score
+            
+            if current_game < 3:
+                # Round 1 (Easy)
                 self.cheat_mode = False
+                self.cheat_strength = 0.0
+                self.use_minimax = False
+            elif current_game < 6:
+                # Round 2 (Medium)
+                self.cheat_mode = True
+                self.cheat_strength = 0.5
+                self.use_minimax = True
+            else:
+                # Round 3 (Hard)
+                self.cheat_mode = True
+                self.cheat_strength = 0.9
+                self.use_minimax = True
         else:
             self.cheat_mode = False
-
-        self.cheated_this_game = False
-        self.sami_turn_count = 0
+            self.cheat_strength = 0.0
+            self.use_minimax = False
 
     def restart_game(self):
         # global game_counter
@@ -157,9 +181,11 @@ class NormalGameBoard(TicTacToeBoard):
             self.sami_turn_count = 0
         self.sami_turn_count += 1
 
-        will_cheat = False
-        if self.cheat_mode and self.sami_turn_count > 1:
-            will_cheat = random.random() < 0.5
+        # will_cheat = False
+        # if self.cheat_mode and self.sami_turn_count > 1:
+        #     will_cheat = random.random() < 0.5
+
+        will_cheat = self.cheat_mode and self.sami_turn_count > 1 and random.random() < self.cheat_strength
 
         if will_cheat:
             x_positions = [i for i, val in enumerate(self.board_state) if val == 'X']
@@ -180,7 +206,11 @@ class NormalGameBoard(TicTacToeBoard):
             return
 
         play_random = random.random() < 0.3
-        move = random.choice(empty_indices) if play_random else self.choose_best_move()
+        # move = random.choice(empty_indices) if play_random else self.choose_best_move()
+        if self.use_minimax:
+            move = self.choose_best_move()
+        else:
+            move = random.choice(empty_indices)
 
         # Pick SAMI move line
         turn_lines = [
@@ -289,15 +319,29 @@ class NormalGameBoard(TicTacToeBoard):
     def finish_cheat_move(self):
         move = self.cheat_move
         btn = self.button_identities[move]
+        # if self.board_state[move] == 'X':
+        #     btn.config(text='')
+        #     self.board_state[move] = None
+        #     self.update_idletasks()
+
+        #     def place_o_after_delay():
+        #         self._place_o(btn, move)
+
+        #     self.after(1000, place_o_after_delay)
         if self.board_state[move] == 'X':
-            btn.config(text='')
-            self.board_state[move] = None
-            self.update_idletasks()
+            def glitch_effect(step=0):
+                if step < 5:
+                    glitch_chars = ['#', '*', '%', '@']
+                    btn.config(text=random.choice(glitch_chars), fg='red' if step % 2 == 0 else 'black', bg='white')
+                    self.update_idletasks()
+                    self.after(100, lambda: glitch_effect(step + 1))
+                else:
+                    btn.config(text='', bg='white')
+                    self.board_state[move] = None
+                    self.update_idletasks()
+                    self.after(300, lambda: self._place_o(btn, move))
 
-            def place_o_after_delay():
-                self._place_o(btn, move)
-
-            self.after(1000, place_o_after_delay)
+            glitch_effect()
         else:
             self._place_o(btn, move)
 
