@@ -67,28 +67,6 @@ class HomePage:
         else:
             return NormalGameBoard
 
-    # def update_score(self, winner):
-    #     print(f"[DEBUG] game_count={self.game_count}, protocol length={len(self.protocol)}")
-    #     if winner == "Player":
-    #         self.player_score += 1
-    #     elif winner == "SAMI":
-    #         self.sami_score += 1
-    #     self.game_count += 1
-    #     print(f"DEBUG after inc -> game_count={self.game_count}")
-
-    #     # Check if we've finished all games in the protocol
-    #     if self.game_count >= len(self.protocol):
-    #         self.end_match()
-    #     else:
-    #         # Load the next game according to protocol
-    #         self.board.destroy()
-    #         board_class = self.get_board_class()
-    #         self.board = board_class(master=self.game_frame, parent_app=self)
-    #         self.board.pack(fill='both', expand=True, padx=20, pady=20)
-
-    #         self.board.display.config(
-    #             text=f"Game {self.game_count + 1} | You: {self.player_score} - SAMI: {self.sami_score}"
-    #         )
     def start_next_game(self):
         if hasattr(self, "board") and self.board is not None:
             self.board.destroy()

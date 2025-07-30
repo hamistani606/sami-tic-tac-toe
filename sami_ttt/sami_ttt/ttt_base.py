@@ -7,7 +7,6 @@ import random
 class TicTacToeBoard(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
-        # self.title("Tic-Tac-Toe Game")
         self._cells = {}
         self._create_board_GUI()
         self.grid_frame = tk.Frame(master=self, bg='white')
@@ -16,7 +15,6 @@ class TicTacToeBoard(tk.Frame):
         self.sami_moves = []
         self.controls_frame = tk.Frame(master=self, height=70)
         self.controls_frame.pack(side=tk.BOTTOM, pady=5, fill=tk.X)
-        # self._create_board_restart()
         self.current_turn = "Player"
         self.board_state = [None] * 9
         self.sami_turn_count = 0
@@ -38,15 +36,12 @@ class TicTacToeBoard(tk.Frame):
             bd=5,
             relief=tk.RIDGE
         )
-        # self.geometry("1000x1100")
         self.display.pack(fill=tk.X, pady=10)
 
     def create_grid(self):
         grid_inner_frame = tk.Frame(master=self.grid_frame, bg='white')
         grid_inner_frame.pack(expand=True)
 
-        # grid_frame = tk.Frame(master=self, bg='white')
-        # grid_frame.pack()
         self.button_identities = []
         for row in range(3):
             grid_inner_frame.columnconfigure(row, weight=1)
@@ -71,19 +66,6 @@ class TicTacToeBoard(tk.Frame):
                 button.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
                 self.button_identities.append(button)
 
-    # def _create_board_restart(self):
-    #     restart_button = tk.Button(
-    #         self.controls_frame, 
-    #         text='Restart',
-    #         font=font.Font(size=16, weight='bold'),
-    #         bg='white',
-    #         fg='black',
-    #         activebackground='white',
-    #         highlightbackground='black',
-    #         command=self.restart_game
-    #     )
-    #     restart_button.pack(side=tk.LEFT, padx=(20, 0))
-
     def restart_game(self):
         self.buttons_pressed.clear()
         self.sami_moves.clear()
@@ -99,7 +81,7 @@ class TicTacToeBoard(tk.Frame):
         self.mainloop()
 
     def record(self, button):
-        pass  # Will be overridden by child classes
+        pass  
 
     def disable_board(self):
         for button in self.button_identities:

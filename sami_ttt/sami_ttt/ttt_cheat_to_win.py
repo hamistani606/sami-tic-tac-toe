@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # from ttt_base import TicTacToeBoard
 from ttt_gui import NormalGameBoard, play_text, estimate_speech_duration
+from ttt_home_page import HomePage
 import tkinter as tk
 from tkinter import font, messagebox
 import random
@@ -45,54 +46,6 @@ class CheatToWinBoard(NormalGameBoard):
         self.current_turn = "SAMI"
         self.after(1000, self.sami_move)
 
-    # def sami_move(self):
-    #     if self.game_over:
-    #         return
-
-    #     self.sami_turn_count += 1
-    #     will_cheat = random.random() < self.cheat_strength
-    #     if will_cheat and self.cheat_mode:
-    #         x_positions = [i for i, val in enumerate(self.board_state) if val == 'X']
-    #         for pos in x_positions:
-    #             original = self.board_state[pos]
-    #             self.board_state[pos] = 'O'
-    #             score = self.minimax(False)
-    #             self.board_state[pos] = original
-
-    #             if score == 1:
-    #                 self.cheat_move = pos
-    #                 self.show_cheat_message("I'm flipping this around 😈")
-    #                 return
-
-    #             self.board_state[pos] = original
-
-    #     if will_cheat and self.cheat_mode and self.cheat_move is None:
-    #         move = self.choose_best_move()
-    #         self.finish_sami_move(move)
-
-    # def sami_move(self):
-    #     if self.game_over:
-    #         return
-
-    #     self.sami_turn_count += 1
-    #     will_cheat = random.random() < self.cheat_strength
-
-    #     # Try to cheat: Flip a player's X to an O *if* it results in a win
-    #     if will_cheat and self.cheat_mode:
-    #         for i, val in enumerate(self.board_state):
-    #             if val == 'X':
-    #                 self.board_state[i] = 'O'
-    #                 if self.check_winner('O'):
-    #                     self.board_state[i] = 'X'  # Restore before animating
-    #                     self.cheat_move = i
-    #                     self.show_cheat_message("I'm flipping this around 😈")
-    #                     return
-    #                 self.board_state[i] = 'X'  # Restore if not a winning cheat
-
-    #     # If no cheat available, fall back to best legit move
-    #     move = self.choose_best_move()
-    #     self.finish_sami_move(move)
-
     def sami_move(self):
         if self.game_over:
             return
@@ -110,8 +63,6 @@ class CheatToWinBoard(NormalGameBoard):
                         self.show_cheat_message("I'm flipping this around")
                         return
                     self.board_state[i] = 'X'
-        
-        # If not cheating, speak a fun line and make a smart move
         if self.use_minimax:
             move = self.choose_best_move()
         else:
@@ -140,17 +91,6 @@ class CheatToWinBoard(NormalGameBoard):
             delay = estimate_speech_duration(line) + 500
             self.after(delay, lambda: self.finish_sami_move(move))
 
-    # def show_cheat_message(self, message):
-    #     cheat_label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
-    #     cheat_label.place(relx=0.5, rely=0.1, anchor="center")
-    #     self.update_idletasks()
-
-    #     def destroy_and_continue():
-    #         cheat_label.destroy()
-    #         self.finish_sami_move()
-
-    #     self.after(1500, destroy_and_continue)
-
     def show_cheat_message(self, message):
         play_text(message)
         label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
@@ -169,12 +109,6 @@ class CheatToWinBoard(NormalGameBoard):
 
         btn = self.button_identities[move]
         if self.board_state[move] == 'X':
-            # btn.config(text='')
-            # self.board_state[move] = None
-            # self.update_idletasks()
-            # def place_o_after_delay():
-            #     self._place_o(btn, move)
-            # self.after(1000, place_o_after_delay)
             btn.config(text='X', fg='red', bg='white')
             self.update_idletasks()
 
@@ -210,59 +144,6 @@ class CheatToWinBoard(NormalGameBoard):
             self.after(50, lambda: shake(i + 1))
 
         self.after(0, shake)
-
-    # def _place_o(self, btn, move):
-    #     btn.config(text='O', fg='#f94f7d', disabledforeground='#f94f7d', state='normal')
-    #     self.board_state[move] = 'O'
-
-    #     self.update_idletasks()
-    #     self.update()
-
-    #     if self.check_winner('O'):
-    #         messagebox.showinfo("Game Over", "SAMI Wins!")
-    #         self.disable_board()
-    #         self.game_over = True
-    #         if self.parent_app:
-    #             self.parent_app.update_score("SAMI")
-    #         return
-
-    #     if all(cell is not None for cell in self.board_state):
-    #         messagebox.showinfo("Game Over", "It's a draw!")
-    #         self.game_over = True
-    #         if self.parent_app:
-    #             self.parent_app.update_score("Tie!")
-    #         return
-
-    #     self.current_turn = "Player"
-
-    # def _place_o(self, btn, move):
-    #     btn.config(text='O', fg='#f94f7d', disabledforeground='#f94f7d', state='normal')
-    #     self.board_state[move] = 'O'
-    #     self.update_idletasks()
-    #     self.update()
-
-    #     if self.cheat_mode and hasattr(self, "cheat_move") and self.cheat_move == move:
-    #         if self.check_winner('O'):
-    #             messagebox.showinfo("Game Over", "SAMI Wins!")
-    #             self.disable_board()
-    #             self.game_over = True
-    #             if self.parent_app:
-    #                 self.parent_app.update_score("SAMI")
-    #                 print("[DEBUG] SAMI cheated and won. Updating score.")
-    #             return
-    #         elif all(cell is not None for cell in self.board_state):
-    #             messagebox.showinfo("Game Over", "It's a draw!")
-    #             self.disable_board()
-    #             self.game_over = True
-    #             if self.parent_app:
-    #                 self.parent_app.update_score("Tie!")
-    #                 print("[DEBUG] Cheated but drew. Updating score.")
-    #                 self.parent_app.after(1000, self.parent_app.start_next_game)
-    #             return
-    #         else:
-    #             # Didn't win or draw — keep playing
-    #             self.current_turn = "Player"
-    #             return
 
     def _place_o(self, btn, move):
         btn.config(text='O', fg='#f94f7d', disabledforeground='#f94f7d', state='normal')

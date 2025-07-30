@@ -25,7 +25,6 @@ class CheatToLoseBoard(NormalGameBoard):
         empty_positions = [i for i, val in enumerate(self.board_state) if val is None]
 
         if will_cheat and empty_positions:
-            # Choose a move to cheat with (place an 'X' instead of 'O')
             move = random.choice(empty_positions)
             self.cheat_move = move
             self.show_cheat_message("Let me give you a chance")

@@ -45,50 +45,9 @@ def estimate_speech_duration(text):
     return duration_ms
 
 class NormalGameBoard(TicTacToeBoard):
-    # def __init__(self, master=None, parent_app=None):
-    #     super().__init__(master=master)
-    #     self.parent_app = parent_app
-
-    #     global game_counter
-    #     game_counter += 1
-
-    #     # if self.parent_app and self.parent_app.game_count == 2:
-    #     #     self.cheat_mode = True
-    #     # else:
-    #     #     self.cheat_mode = False
-
-    #     if game_counter % 2 == 0:
-    #         self.cheat_mode = True
-    #     else:
-    #         self.cheat_mode = False
-    #     self.cheated_this_game = False
-    #     self.sami_turn_count = 0
-
     def __init__(self, master=None, parent_app=None):
         super().__init__(master=master)
         self.parent_app = parent_app
-
-        # global game_counter
-        # game_counter += 1
-
-        # Cheat every other game
-        # if game_counter % 2 == 0:
-        #     self.cheat_mode = True
-        # else:
-        #     self.cheat_mode = False
-        # if self.parent_app:
-        #     finished_games = self.parent_app.player_score + self.parent_app.sami_score
-        #     if finished_games == 1:
-        #         self.cheat_mode = True
-        #         self.cheat_strength = 0.5
-        #     elif finished_games == 2:
-        #         self.cheat_mode = True
-        #         self.cheat_strength = 0.9
-        #     else:
-        #         self.cheat_mode = False
-        #         self.cheat_strength = 0.0
-        # self.cheated_this_game = False
-        # self.sami_turn_count = 0
         if self.parent_app:
             current_game = self.parent_app.player_score + self.parent_app.sami_score
             
@@ -113,14 +72,6 @@ class NormalGameBoard(TicTacToeBoard):
             self.use_minimax = False
 
     def restart_game(self):
-        # global game_counter
-        # game_counter += 1
-
-        # if game_counter % 1 == 0:
-        #     self.cheat_mode = True
-        # else:
-        #     self.cheat_mode = False
-
         self.cheated_this_game = False
         self.sami_turn_count = 0
         super().restart_game()
@@ -181,10 +132,6 @@ class NormalGameBoard(TicTacToeBoard):
             self.sami_turn_count = 0
         self.sami_turn_count += 1
 
-        # will_cheat = False
-        # if self.cheat_mode and self.sami_turn_count > 1:
-        #     will_cheat = random.random() < 0.5
-
         will_cheat = self.cheat_mode and self.sami_turn_count > 1 and random.random() < self.cheat_strength
 
         if will_cheat:
@@ -206,7 +153,6 @@ class NormalGameBoard(TicTacToeBoard):
             return
 
         play_random = random.random() < 0.3
-        # move = random.choice(empty_indices) if play_random else self.choose_best_move()
         if self.use_minimax:
             move = self.choose_best_move()
         else:
@@ -319,15 +265,6 @@ class NormalGameBoard(TicTacToeBoard):
     def finish_cheat_move(self):
         move = self.cheat_move
         btn = self.button_identities[move]
-        # if self.board_state[move] == 'X':
-        #     btn.config(text='')
-        #     self.board_state[move] = None
-        #     self.update_idletasks()
-
-        #     def place_o_after_delay():
-        #         self._place_o(btn, move)
-
-        #     self.after(1000, place_o_after_delay)
         if self.board_state[move] == 'X':
             def glitch_effect(step=0):
                 if step < 5:
