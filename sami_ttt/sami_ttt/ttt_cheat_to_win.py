@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # from ttt_base import TicTacToeBoard
 from ttt_gui import NormalGameBoard, play_text, estimate_speech_duration
-from ttt_home_page import HomePage
+# from ttt_home_page import HomePage
 import tkinter as tk
 from tkinter import font, messagebox
 import random
