@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-# from ttt_base import TicTacToeBoard
 from ttt_gui import NormalGameBoard, play_text, estimate_speech_duration
-# from ttt_home_page import HomePage
 import tkinter as tk
 from tkinter import font, messagebox
 import random
@@ -91,59 +89,78 @@ class CheatToWinBoard(NormalGameBoard):
             delay = estimate_speech_duration(line) + 500
             self.after(delay, lambda: self.finish_sami_move(move))
 
+    # def show_cheat_message(self, message):
+    #     play_text(message)
+    #     label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
+    #     label.place(relx=0.5, rely=0.1, anchor="center")
+    #     self.update_idletasks()
+
+    #     def destroy_and_continue():
+    #         label.destroy()
+    #         self.finish_sami_move()
+
+    #     self.after(1500, destroy_and_continue)
+
     def show_cheat_message(self, message):
         play_text(message)
-        label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
-        label.place(relx=0.5, rely=0.1, anchor="center")
+        self.cheat_label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
+        self.cheat_label.place(relx=0.5, rely=0.1, anchor="center")
         self.update_idletasks()
+        self.after(1500, self.destroy_and_continue)
 
-        def destroy_and_continue():
-            label.destroy()
+    def destroy_and_continue(self):
+        if hasattr(self, 'cheat_label'):
+            self.cheat_label.destroy()
             self.finish_sami_move()
 
-        self.after(1500, destroy_and_continue)
+    def shake_screen(self, cycles=10):
+        self.shake_cycles = cycles
+        self.shake_root = self.winfo_toplevel()
+        self.shake_orig_x = self.shake_root.winfo_x()
+        self.shake_orig_y = self.shake_root.winfo_y()
+
+        self.shake_step(0)
+
+    def shake_step(self, i):
+        if i >= self.shake_cycles:
+            self.shake_root.geometry(f"+{self.shake_orig_x}+{self.shake_orig_y}")
+            return
+
+        x_offset = random.randint(-10, 10)
+        y_offset = random.randint(-10, 10)
+        self.shake_root.geometry(f"+{self.shake_orig_x + x_offset}+{self.shake_orig_y + y_offset}")
+        self.after(50, lambda: self.shake_step(i + 1))
 
     def finish_sami_move(self, move=None):
         if move is None:
             move = self.cheat_move
 
-        btn = self.button_identities[move]
+        self.cheat_move = move  # ensure it's accessible in other methods
+        self.cheat_button = self.button_identities[move]
+
         if self.board_state[move] == 'X':
-            btn.config(text='X', fg='red', bg='white')
+            self.cheat_button.config(text='X', fg='red', bg='white')
             self.update_idletasks()
-
-            def glitch_effect(step=0):
-                if step < 4:
-                    # Cycle through glitch characters/colors
-                    glitch_chars = ['#', '@', '*', '!']
-                    btn.config(text=random.choice(glitch_chars), fg='red' if step % 2 == 0 else 'black', bg='white')
-                    self.update_idletasks()
-                    self.after(100, lambda: glitch_effect(step + 1))
-                else:
-                    self.shake_screen()
-                    btn.config(text='', bg='white')  # Clear the 'X'
-                    self.board_state[move] = None
-                    self.update_idletasks()
-                    self.after(200, lambda: self._place_o(btn, move))
-            glitch_effect()
+            self.glitch_effect()
         else:
-            self._place_o(btn, move)
-    
-    def shake_screen(self, cycles=10):
-        root = self.winfo_toplevel()
-        orig_x = root.winfo_x()
-        orig_y = root.winfo_y()
+            self._place_o(self.cheat_button, move)
 
-        def shake(i=0):
-            if i >= cycles:
-                root.geometry(f"+{orig_x}+{orig_y}")
-                return
-            x_offset = random.randint(-10, 10)
-            y_offset = random.randint(-10, 10)
-            root.geometry(f"+{orig_x + x_offset}+{orig_y + y_offset}")
-            self.after(50, lambda: shake(i + 1))
-
-        self.after(0, shake)
+    def glitch_effect(self, step=0):
+        if step < 4:
+            glitch_chars = ['#', '@', '*', '!']
+            self.cheat_button.config(
+                text=random.choice(glitch_chars),
+                fg='red' if step % 2 == 0 else 'black',
+                bg='white'
+            )
+            self.update_idletasks()
+            self.after(100, lambda: self.glitch_effect(step + 1))
+        else:
+            self.shake_screen()
+            self.cheat_button.config(text='', bg='white')
+            self.board_state[self.cheat_move] = None
+            self.update_idletasks()
+            self.after(200, lambda: self._place_o(self.cheat_button, self.cheat_move))
 
     def _place_o(self, btn, move):
         btn.config(text='O', fg='#f94f7d', disabledforeground='#f94f7d', state='normal')

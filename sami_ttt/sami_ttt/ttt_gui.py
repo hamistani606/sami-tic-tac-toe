@@ -11,6 +11,34 @@ import math
 game_counter = 0
 cheat_played = False
 
+# def show_cheat_message(self, message=None):
+#     cheat_lines = [
+#         "Haha! I'm winning!",
+#         "I'm just too smart for you!",
+#         "Oh no, did I do that?",
+#         "I can't help being this good!"
+#     ]
+#     line = random.choice(cheat_lines)
+
+#     cheat_label = tk.Label(self, text=line, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
+#     cheat_label.place(relx=0.5, rely=0.1, anchor="center")
+#     self.update_idletasks()
+
+#     play_text(line)
+
+#     def destroy_and_continue():
+#         cheat_label.destroy()
+#         self.finish_cheat_move()
+
+#     self.after(2000, destroy_and_continue)
+
+def destroy_cheat_message(self):
+    if hasattr(self, 'cheat_label'):
+        self.cheat_label.destroy()
+        del self.cheat_label
+
+    self.finish_cheat_move()
+
 def show_cheat_message(self, message=None):
     cheat_lines = [
         "Haha! I'm winning!",
@@ -18,25 +46,31 @@ def show_cheat_message(self, message=None):
         "Oh no, did I do that?",
         "I can't help being this good!"
     ]
-    line = random.choice(cheat_lines)
-
-    cheat_label = tk.Label(self, text=line, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
-    cheat_label.place(relx=0.5, rely=0.1, anchor="center")
+    self.cheat_line = random.choice(cheat_lines)
+    
+    self.cheat_label = tk.Label(
+        self,
+        text=self.cheat_line,
+        font=font.Font(size=24, weight="bold"),
+        fg="red",
+        bg="white"
+    )
+    self.cheat_label.place(relx=0.5, rely=0.1, anchor="center")
     self.update_idletasks()
 
-    play_text(line)
+    play_text(self.cheat_line)
 
-    def destroy_and_continue():
-        cheat_label.destroy()
-        self.finish_cheat_move()
+    self.after(2000, self.destroy_cheat_message)
 
-    self.after(2000, destroy_and_continue)
-
+# def play_text(text):
+#     def worker():
+#         os.system(f'say -v Alex -r 130 \"{text}\"')
+#     threading.Thread(target=worker).start()
 
 def play_text(text):
-    def worker():
-        os.system(f'say -v Alex -r 130 \"{text}\"')
-    threading.Thread(target=worker).start()
+    threading.Thread(
+        target=lambda: os.system(f'say -v Alex -r 130 "{text}"')
+    ).start()
 
 def estimate_speech_duration(text):
     words = len(text.split())
