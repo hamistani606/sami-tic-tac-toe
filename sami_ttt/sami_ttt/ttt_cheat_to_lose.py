@@ -50,34 +50,45 @@ class CheatToLoseBoard(NormalGameBoard):
             btn = self.button_identities[move]
             self._place_o(btn, move)
 
+    def destroy_sami_cheat_message(self):
+        if hasattr(self, 'cheat_label'):
+            self.cheat_label.destroy()
+            del self.cheat_label
+        self.finish_sami_cheat()
+
     def show_cheat_message(self, message):
-        cheat_label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="gray", bg="white")
-        cheat_label.place(relx=0.5, rely=0.1, anchor="center")
+        self.cheat_label = tk.Label(
+            self,
+            text=message,
+            font=font.Font(size=24, weight="bold"),
+            fg="gray",
+            bg="white"
+        )
+        self.cheat_label.place(relx=0.5, rely=0.1, anchor="center")
         self.update_idletasks()
 
-        def destroy_and_continue():
-            cheat_label.destroy()
-            self.finish_sami_cheat()
+        self.after(1500, self.destroy_sami_cheat_message)
 
-        self.after(1500, destroy_and_continue)
+    def glitch_cheat_effect(self, step=0):
+        if step < 4:
+            glitch_chars = ['X', '*', '#', '%']
+            self.cheat_button.config(
+                text=random.choice(glitch_chars),
+                fg='gray' if step % 2 == 0 else 'black',
+                bg='white'
+            )
+            self.update_idletasks()
+            self.after(100, lambda: self.glitch_cheat_effect(step + 1))
+        else:
+            self.cheat_button.config(text='X', bg='white')  # Mistakenly put an X!
+            self.board_state[self.cheat_move] = 'X'
+            self.update_idletasks()
+            self.master.after(300, self.check_game_end)
 
     def finish_sami_cheat(self):
         move = self.cheat_move
-        btn = self.button_identities[move]
-
-        def glitch_effect(step=0):
-            if step < 4:
-                glitch_chars = ['X', '*', '#', '%']
-                btn.config(text=random.choice(glitch_chars), fg='gray' if step % 2 == 0 else 'black', bg='white')
-                self.update_idletasks()
-                self.after(100, lambda: glitch_effect(step + 1))
-            else:
-                btn.config(text='X', bg='white')  # Mistakenly put an X!
-                self.board_state[move] = 'X'
-                self.update_idletasks()
-                self.after(300, self.check_game_end)
-
-        glitch_effect()
+        self.cheat_button = self.button_identities[move]
+        self.glitch_cheat_effect(step=0)
 
     def check_game_end(self):
         if self.check_winner('X'):

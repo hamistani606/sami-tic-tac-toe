@@ -11,27 +11,6 @@ import math
 game_counter = 0
 cheat_played = False
 
-# def show_cheat_message(self, message=None):
-#     cheat_lines = [
-#         "Haha! I'm winning!",
-#         "I'm just too smart for you!",
-#         "Oh no, did I do that?",
-#         "I can't help being this good!"
-#     ]
-#     line = random.choice(cheat_lines)
-
-#     cheat_label = tk.Label(self, text=line, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
-#     cheat_label.place(relx=0.5, rely=0.1, anchor="center")
-#     self.update_idletasks()
-
-#     play_text(line)
-
-#     def destroy_and_continue():
-#         cheat_label.destroy()
-#         self.finish_cheat_move()
-
-#     self.after(2000, destroy_and_continue)
-
 def destroy_cheat_message(self):
     if hasattr(self, 'cheat_label'):
         self.cheat_label.destroy()
@@ -258,8 +237,13 @@ class NormalGameBoard(TicTacToeBoard):
 
         self.after(delay_ms, place_and_switch)
 
-    def show_cheat_message(self, message):
+    def destroy_cheat_message(self):
+        if hasattr(self, 'cheat_label'):
+            self.cheat_label.destroy()
+            del self.cheat_label
+        self.finish_cheat_move()
 
+    def show_cheat_message(self, message=None):
         cheat_lines = [
             "Haha! I'm winning!",
             "I'm just too smart for you!",
@@ -283,38 +267,49 @@ class NormalGameBoard(TicTacToeBoard):
             "My code says I win!",
             "Did my circuits misfire? Oh well!"
         ]
-        line = random.choice(cheat_lines)
-        cheat_label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
-        cheat_label.place(relx=0.5, rely=0.1, anchor="center")
+
+        self.cheat_line = random.choice(cheat_lines)
+        if message is None:
+            message = self.cheat_line
+
+        self.cheat_label = tk.Label(
+            self,
+            text=message,
+            font=font.Font(size=24, weight="bold"),
+            fg="red",
+            bg="white"
+        )
+        self.cheat_label.place(relx=0.5, rely=0.1, anchor="center")
         self.update_idletasks()
 
-        play_text(line)
+        play_text(self.cheat_line)
 
-        def destroy_and_continue():
-            cheat_label.destroy()
-            self.finish_cheat_move()
+        self.after(1500, self.destroy_cheat_message)
 
-        self.after(1500, destroy_and_continue)
+    def glitch_effect(self, step=0):
+        if step < 5:
+            glitch_chars = ['#', '*', '%', '@']
+            self.cheat_button.config(
+                text=random.choice(glitch_chars),
+                fg='red' if step % 2 == 0 else 'black',
+                bg='white'
+            )
+            self.update_idletasks()
+            self.after(100, lambda: self.glitch_effect(step + 1))
+        else:
+            self.cheat_button.config(text='', bg='white')
+            self.board_state[self.cheat_move] = None
+            self.update_idletasks()
+            self.after(300, lambda: self._place_o(self.cheat_button, self.cheat_move))
 
     def finish_cheat_move(self):
         move = self.cheat_move
-        btn = self.button_identities[move]
-        if self.board_state[move] == 'X':
-            def glitch_effect(step=0):
-                if step < 5:
-                    glitch_chars = ['#', '*', '%', '@']
-                    btn.config(text=random.choice(glitch_chars), fg='red' if step % 2 == 0 else 'black', bg='white')
-                    self.update_idletasks()
-                    self.after(100, lambda: glitch_effect(step + 1))
-                else:
-                    btn.config(text='', bg='white')
-                    self.board_state[move] = None
-                    self.update_idletasks()
-                    self.after(300, lambda: self._place_o(btn, move))
+        self.cheat_button = self.button_identities[move]
 
-            glitch_effect()
+        if self.board_state[move] == 'X':
+            self.glitch_effect(step=0)
         else:
-            self._place_o(btn, move)
+            self._place_o(self.cheat_button, move)
 
     def _place_o(self, btn, move):
         btn.config(text='O', fg='#f94f7d', disabledforeground='#f94f7d', state='normal')
