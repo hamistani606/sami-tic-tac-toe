@@ -93,18 +93,6 @@ class CheatToWinBoard(NormalGameBoard):
             delay = estimate_speech_duration(line) + 500
             self.after(delay, lambda: self.finish_sami_move(move))
 
-    # def show_cheat_message(self, message):
-    #     play_text(message)
-    #     label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
-    #     label.place(relx=0.5, rely=0.1, anchor="center")
-    #     self.update_idletasks()
-
-    #     def destroy_and_continue():
-    #         label.destroy()
-    #         self.finish_sami_move()
-
-    #     self.after(1500, destroy_and_continue)
-
     def show_cheat_message(self, message):
         play_text(message)
         self.cheat_label = tk.Label(self, text=message, font=font.Font(size=24, weight="bold"), fg="red", bg="white")
@@ -193,11 +181,11 @@ class CheatToWinBoard(NormalGameBoard):
                     self.parent_app.after(1000, self.parent_app.start_next_game)
                 return
 
-            # Neither win nor draw — continue game
+            # Neither win nor draw - continue game
             self.current_turn = "Player"
             return
 
-        # ✅ Fair game logic (only reached if not a cheat move)
+        # Fair game logic (only reached if not a cheat move)
         if self.check_winner('O'):
             messagebox.showinfo("Game Over", "SAMI Wins!")
             self.disable_board()
