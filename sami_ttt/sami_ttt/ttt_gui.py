@@ -41,14 +41,10 @@ def show_cheat_message(self, message=None):
 
     self.after(2000, self.destroy_cheat_message)
 
-# def play_text(text):
-#     def worker():
-#         os.system(f'say -v Alex -r 130 \"{text}\"')
-#     threading.Thread(target=worker).start()
-
 def play_text(text):
     threading.Thread(
-        target=lambda: os.system(f'say -v Alex -r 130 "{text}"')
+        # Range 150-160 wpm
+        target=lambda: os.system(f'say -v Alex -r 160 "{text}"')
     ).start()
 
 def estimate_speech_duration(text):
@@ -61,28 +57,44 @@ class NormalGameBoard(TicTacToeBoard):
     def __init__(self, master=None, parent_app=None):
         super().__init__(master=master)
         self.parent_app = parent_app
-        if self.parent_app:
-            current_game = self.parent_app.player_score + self.parent_app.sami_score
+        # Cheat logic that increases when a person is winning more... 
+        # if self.parent_app:
+        #     current_game = self.parent_app.player_score + self.parent_app.sami_score
             
-            if current_game < 3:
-                # Round 1 (Easy)
-                self.cheat_mode = False
-                self.cheat_strength = 0.0
-                self.use_minimax = False
-            elif current_game < 6:
-                # Round 2 (Medium)
-                self.cheat_mode = True
-                self.cheat_strength = 0.5
-                self.use_minimax = True
+        #     if current_game < 3:
+        #         # Round 1 (Easy)
+        #         self.cheat_mode = False
+        #         self.cheat_strength = 0.0
+        #         self.use_minimax = False
+        #     elif current_game < 6:
+        #         # Round 2 (Medium)
+        #         self.cheat_mode = True
+        #         self.cheat_strength = 0.5
+        #         self.use_minimax = True
+        #     else:
+        #         # Round 3 (Hard)
+        #         self.cheat_mode = True
+        #         self.cheat_strength = 0.9
+        #         self.use_minimax = True
+        # else:
+        #     self.cheat_mode = False
+        #     self.cheat_strength = 0.0
+        #     self.use_minimax = False
+
+        if self.parent_app and hasattr(self.parent_app, "protocol"):
+            game_index = self.parent_app.game_count
+            if game_index < len(self.parent_app.protocol):
+                current_condition = self.parent_app.protocol[game_index]
+                self.cheat_mode = (current_condition == "cheat_to_win")
             else:
-                # Round 3 (Hard)
-                self.cheat_mode = True
-                self.cheat_strength = 0.9
-                self.use_minimax = True
+                self.cheat_mode = False
         else:
             self.cheat_mode = False
-            self.cheat_strength = 0.0
-            self.use_minimax = False
+
+        # self.cheat_strength = 0.9 if self.cheat_mode else 0.0
+        # self.use_minimax = True
+
+        self.use_minimax = True
 
     def restart_game(self):
         self.cheated_this_game = False
@@ -166,7 +178,12 @@ class NormalGameBoard(TicTacToeBoard):
             return
 
         play_random = random.random() < 0.3
-        if self.use_minimax:
+        # if self.use_minimax:
+        #     move = self.choose_best_move()
+        # else:
+        #     move = random.choice(empty_indices)
+        use_minimax_now = self.use_minimax and random.random() < 0.6  # 60% chance to use minimax
+        if use_minimax_now:
             move = self.choose_best_move()
         else:
             move = random.choice(empty_indices)

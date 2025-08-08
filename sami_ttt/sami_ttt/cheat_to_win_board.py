@@ -8,10 +8,10 @@ class CheatToWinBoard(NormalGameBoard):
     def __init__(self, master=None, parent_app=None):
         super().__init__(master=master, parent_app=parent_app)
         self.cheat_mode = True
-        if self.parent_app and self.parent_app.protocol[self.parent_app.game_count] != "cheat_to_win":
+        if parent_app and hasattr(parent_app, "protocol"):
+            self.cheat_mode = parent_app.protocol[parent_app.game_count] == "cheat_to_win"
+        else:
             self.cheat_mode = False
-        self.cheat_mode = hasattr(parent_app, "protocol") and \
-            parent_app.protocol[parent_app.game_count] == "cheat_to_win"
         self.use_minimax = True
         self.cheat_strength = 0.9
         self.cheat_move = None
