@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
+# home_base.py
 
 import tkinter as tk
 from tkinter import font, messagebox
 from ttt_gui import NormalGameBoard
-from ttt_cheat_to_win import CheatToWinBoard
-from ttt_cheat_to_lose import CheatToLoseBoard
 
 class HomePage:
     def __init__(self):
@@ -19,28 +17,23 @@ class HomePage:
 
         self.build_home_screen()
 
-        self.protocol = [
-            "fair", "fair", "fair", "fair",  # Games 0-3
-            "cheat_to_win",                  # Game 4
-            "fair", "fair", "fair", # Games 5-7
-            "cheat_to_lose", "fair"  # Games 8-9
-        ]
+        self.protocol = []  # override in child class
 
     def build_home_screen(self):
-        self.home_frame.pack(fill='both', expand = True) 
+        self.home_frame.pack(fill='both', expand=True)
         label = tk.Label(
-            self.home_frame, 
-            text="Let's play Tic-Tac-Toe\nXOXO SAMI!", 
+            self.home_frame,
+            text="Let's play Tic-Tac-Toe\nXOXO SAMI!",
             font=("Helvetica", 28, "bold"),
             fg="#f94f7d")
         label.pack(pady=50)
 
         start_btn = tk.Button(
-            self.home_frame, 
+            self.home_frame,
             text="Start Game",
             font=("Helvetica", 20),
             command=self.start_game)
-        
+
         start_btn.pack(pady=20)
 
     def start_game(self):
@@ -58,19 +51,9 @@ class HomePage:
         self.board.pack(fill='both', expand=True, padx=20, pady=20)
 
     def get_board_class(self):
-        condition = self.protocol[self.game_count]
-
-        if condition == "cheat_to_win":
-            return CheatToWinBoard
-        elif condition == "cheat_to_lose":
-            return CheatToLoseBoard
-        else:
-            return NormalGameBoard
+        return NormalGameBoard  # default, override in subclasses
 
     def start_next_game(self):
-        board_class = self.get_board_class()
-        print(f"[DEBUG] start_next_game() called — game_count={self.game_count}")
-
         if hasattr(self, "board") and self.board is not None:
             self.board.destroy()
 
@@ -93,7 +76,7 @@ class HomePage:
         print(f"DEBUG after inc -> game_count={self.game_count}")
 
         if self.game_count == len(self.protocol):
-            self.end_match()  # All 10 games completed
+            self.end_match()
         else:
             self.root.after(1000, self.start_next_game)
 
@@ -107,7 +90,6 @@ class HomePage:
 
         messagebox.showinfo("Match Over", final_msg)
 
-        # Reset for a new session
         self.player_score = 0
         self.sami_score = 0
         self.game_count = 0
@@ -116,7 +98,3 @@ class HomePage:
 
     def run(self):
         self.root.mainloop()
-
-if __name__ == '__main__':
-    app = HomePage()
-    app.run()
