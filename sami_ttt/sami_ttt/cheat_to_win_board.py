@@ -39,12 +39,11 @@ class CheatToWinBoard(NormalGameBoard):
 
         if all(cell is not None for cell in self.board_state):
             messagebox.showinfo("Game Over", "It's a draw!")
+            self.disable_board()
             self.game_over = True
             if self.parent_app:
-                self.parent_app.update_score("Tie!")
-                self.parent_app.after(1000, self.parent_app.start_next_game)
+                self.parent_app.update_score("Tie")  # let HomePage schedule the next game
             return
-
         self.current_turn = "SAMI"
         self.after(1000, self.sami_move)
 
