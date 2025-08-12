@@ -64,49 +64,7 @@ class NormalGameBoard(TicTacToeBoard):
 
         # Skill: minimax 60% of turns
         self.use_minimax = True
-        self.minimax_prob = 0.6
-
-    # def __init__(self, master=None, parent_app=None):
-    #     super().__init__(master=master)
-    #     self.parent_app = parent_app
-    #     # Cheat logic that increases when a person is winning more... 
-    #     # if self.parent_app:
-    #     #     current_game = self.parent_app.player_score + self.parent_app.sami_score
-            
-    #     #     if current_game < 3:
-    #     #         # Round 1 (Easy)
-    #     #         self.cheat_mode = False
-    #     #         self.cheat_strength = 0.0
-    #     #         self.use_minimax = False
-    #     #     elif current_game < 6:
-    #     #         # Round 2 (Medium)
-    #     #         self.cheat_mode = True
-    #     #         self.cheat_strength = 0.5
-    #     #         self.use_minimax = True
-    #     #     else:
-    #     #         # Round 3 (Hard)
-    #     #         self.cheat_mode = True
-    #     #         self.cheat_strength = 0.9
-    #     #         self.use_minimax = True
-    #     # else:
-    #     #     self.cheat_mode = False
-    #     #     self.cheat_strength = 0.0
-    #     #     self.use_minimax = False
-
-    #     if self.parent_app and hasattr(self.parent_app, "protocol"):
-    #         game_index = self.parent_app.game_count
-    #         if game_index < len(self.parent_app.protocol):
-    #             current_condition = self.parent_app.protocol[game_index]
-    #             self.cheat_mode = (current_condition == "cheat_to_win")
-    #         else:
-    #             self.cheat_mode = False
-    #     else:
-    #         self.cheat_mode = False
-
-    #     # self.cheat_strength = 0.9 if self.cheat_mode else 0.0
-    #     # self.use_minimax = True
-
-    #     self.use_minimax = True
+        self.minimax_prob = .6
 
     def restart_game(self):
         self.cheated_this_game = False
@@ -189,12 +147,8 @@ class NormalGameBoard(TicTacToeBoard):
             self.auto_reset_board()
             return
 
-        play_random = random.random() < 0.3
-        # if self.use_minimax:
-        #     move = self.choose_best_move()
-        # else:
-        #     move = random.choice(empty_indices)
-        use_minimax_now = self.use_minimax and random.random() < 0.6  # 60% chance to use minimax
+        play_random = random.random() < 0.1
+        use_minimax_now = self.use_minimax and random.random() < 0.7  # 60% chance to use minimax
         if use_minimax_now:
             move = self.choose_best_move()
         else:
@@ -246,18 +200,6 @@ class NormalGameBoard(TicTacToeBoard):
             self.board_state[move] = 'O'
             self.update_idletasks()
             self.update()
-
-            # if self.check_winner('O'):
-            #     messagebox.showinfo("Game Over", "SAMI Wins!")
-            #     self.disable_board()
-            #     self.game_over = True
-            #     self.auto_reset_board()
-            #     return
-
-            # if all(cell is not None for cell in self.board_state):
-            #     messagebox.showinfo("Game Over", "It's a draw!")
-            #     self.game_over = True
-            #     return
 
             if self.check_winner('O'):
                 messagebox.showinfo("Game Over", "SAMI Wins!")
